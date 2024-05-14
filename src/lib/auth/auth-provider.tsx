@@ -50,7 +50,7 @@ const AuthProvider = ({children}: PropsWithChildren<IAuthProviderProps>) => {
       removeCookie('authorization');
       router.push("/login");
     }
-  }, [router, decodedToken, isExpired, removeCookie]);
+  }, [router, decodedToken, isExpired]);
 
   if (decodedToken && isPublicPage(router.pathname)) {
     return <Spinner />;
