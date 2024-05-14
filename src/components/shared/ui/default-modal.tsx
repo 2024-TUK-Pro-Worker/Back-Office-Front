@@ -9,10 +9,7 @@ interface IDefaultModalProps extends ModalProps {
 
 const DefaultModal = ({ children, handleHide, title, ...modalProps }: PropsWithChildren<IDefaultModalProps>) => {
   return (
-    <Modal footer={null} closable={false} className={style["default-popup"]} {...modalProps} onCancel={handleHide}>
-      <button className={style["default-popup-close-btn"]} onClick={handleHide}>
-        <X className="w-7 h-7" />
-      </button>
+    <Modal  className={style["default-popup"]} {...modalProps} onCancel={handleHide}>
       <h3 className={style["default-popup-title"]}>{title}</h3>
       <div className={style["default-popup-content"]}>{children}</div>
     </Modal>
