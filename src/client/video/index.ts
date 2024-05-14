@@ -61,8 +61,8 @@ import {axiosApi, fetchApi} from "../base";
 export const getVideoList = async () => {
   try {
     const result = await axiosApi.get("api/video/list");
-    console.log(result)
-    return result
+    console.log(result.data)
+    return result.data
   } catch (e) {
     return;
   }

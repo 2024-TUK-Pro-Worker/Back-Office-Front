@@ -43,6 +43,13 @@ const mainMenuData: IMenu[] = [
           path: "/account/scheduler/management",
         },
       },
+      {
+        id: "accountPrompt",
+        name: "프롬프트 설정",
+        link: {
+          path: "/account/prompt",
+        },
+      },
     ],
   },
 ];
