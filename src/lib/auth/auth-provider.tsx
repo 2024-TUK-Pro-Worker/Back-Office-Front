@@ -38,6 +38,10 @@ const AuthProvider = ({children}: PropsWithChildren<IAuthProviderProps>) => {
   const {decodedToken, isExpired} = useJwt<{name: string, email: string}>(cookies.authorization);
 
   useEffect(() => {
+    console.log(isExpired);
+    if (router.pathname === "/useError" || router.pathname === "/_error" ){
+      return;
+    }
     if (decodedToken && isPublicPage(router.pathname)) {
       router.push("/");
     } else if (!decodedToken && !isPublicPage(router.pathname)) {
@@ -46,7 +50,7 @@ const AuthProvider = ({children}: PropsWithChildren<IAuthProviderProps>) => {
       removeCookie('authorization');
       router.push("/login");
     }
-  }, [router, decodedToken, isExpired]);
+  }, [router, decodedToken, isExpired, removeCookie]);
 
   if (decodedToken && isPublicPage(router.pathname)) {
     return <Spinner />;

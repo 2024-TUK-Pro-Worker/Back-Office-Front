@@ -1,8 +1,8 @@
 import Head from "next/head";
 import React from "react";
 
-export const DEFAULT_TITLE = "Purple Admin UI";
-export const DEFAULT_DESCRIPTION = "Purple Admin UI";
+export const DEFAULT_TITLE = "AI Short Maker";
+export const DEFAULT_DESCRIPTION = "숏츠를 만드는 새로운 방법!";
 
 interface ISeoHeadProps {
   title?: string;

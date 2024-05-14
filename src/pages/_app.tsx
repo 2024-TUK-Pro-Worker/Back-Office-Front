@@ -6,11 +6,13 @@ import "@/styles/globals.css";
 import { ConfigProvider } from "antd";
 import koKR from "antd/locale/ko_KR";
 import { NextComponentType } from "next";
-import { SessionProvider } from "next-auth/react";
 import type { AppProps } from "next/app";
 import localFont from "next/font/local";
 import Head from "next/head";
 import { SWRConfig } from "swr";
+import { useEffect, useState } from "react";
+import { useRouter } from "next/router";
+import { ErrorContext } from "@/context/Error";
 
 const pretendard = localFont({
   src: "../fonts/PretendardVariable.woff2",
@@ -22,6 +24,22 @@ export default function App({ Component, pageProps: { session, ...pageProps } }:
   const getLayout =
     (Component as IDefaultLayoutPage).getLayout ||
     ((Page: NextComponentType, props: Record<string, unknown>) => <Page {...props} />);
+  const [error, setError] = useState<
+    { error: string; errorMsg: string } | undefined
+  >(undefined);
+  const router = useRouter();
+
+  useEffect(() => {
+    if (router.pathname === '/login') {
+      setError(undefined);
+    } else if (!!error) {
+      (async () => {
+        const cloneError = { ...error };
+        setError(undefined);
+        await router.push({ pathname: '/useError', query: cloneError });
+      })();
+    }
+  }, [error]);
 
   return (
     <>
@@ -33,24 +51,23 @@ export default function App({ Component, pageProps: { session, ...pageProps } }:
         <link rel="icon" type="image/png" sizes="32x32" href="/img/favicon/favicon-32x32.png" />
         <link rel="icon" type="image/png" sizes="16x16" href="/img/favicon/favicon-16x16.png" />
         <link rel="manifest" href="/img/favicon/site.webmanifest" />
-        {process.env.NEXT_PUBLIC_CODENBUTTER_SITE_ID ? (
-          <script src="https://buttr.dev/butter.js" data-site-id={process.env.NEXT_PUBLIC_CODENBUTTER_SITE_ID} async />
-        ) : null}
       </Head>
       <ConfigProvider
         theme={{
           token: {
-            colorPrimary: "#63489a",
-            colorLink: "#63489a",
-            colorLinkHover: "#7f68a6",
+            colorPrimary: "rgb(20, 132, 236)",
+            colorLink: "rgb(12, 68, 118)",
+            colorLinkHover: "rgb(120, 188, 240)",
           },
         }}
         locale={koKR}
       >
         <SWRConfig value={{ fetcher, revalidateOnFocus: false }}>
+          <ErrorContext.Provider value={setError}>
           <AuthProvider>
             <main className={`${pretendard.variable} font-sans`}>{getLayout(Component, pageProps)}</main>
           </AuthProvider>
+          </ErrorContext.Provider>
         </SWRConfig>
       </ConfigProvider>
     </>

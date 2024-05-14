@@ -9,6 +9,12 @@
   body {
     font-size: 14px;
   }
+
+  *{
+    --base-color-primary: rgb(20, 132, 236);
+    --base-color-link:rgb(12, 68, 118);
+    --base-color-hover: rgb(120, 188, 240);
+  }
 }
 
 @layer components {
