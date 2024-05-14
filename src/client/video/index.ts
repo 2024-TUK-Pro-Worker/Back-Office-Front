@@ -1,7 +1,7 @@
 import { ISO8601DateTime } from "@/types/common";
 import qs from "qs";
 import useSWR from "swr";
-import { fetchApi } from "../base";
+import {axiosApi, fetchApi} from "../base";
 //
 // export interface IProduct {
 //   id: number;
@@ -58,9 +58,11 @@ import { fetchApi } from "../base";
 //   return fetchApi.put(`api/sample/products/${id}`, { body: JSON.stringify(value) });
 // };
 
-export const getVideoList = () => {
+export const getVideoList = async () => {
   try {
-    return fetchApi.get("api/video/list");
+    const result = await axiosApi.get("api/video/list");
+    console.log(result)
+    return result
   } catch (e) {
     return;
   }

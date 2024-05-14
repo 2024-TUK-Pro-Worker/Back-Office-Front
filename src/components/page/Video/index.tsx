@@ -2,10 +2,14 @@ import { getVideoList } from "@/client/video";
 import { useEffect } from "react";
 
 export const VideoList = () => {
-  const result = getVideoList();
+  const getVideoListData = async () => {
+    const a  = await getVideoList();
+    console.log(a);
+    return a;
+  }
   useEffect(() => {
-    console.log(result);
-  }, [result]);
+    getVideoListData()
+  }, []);
   return (
     <>
 
