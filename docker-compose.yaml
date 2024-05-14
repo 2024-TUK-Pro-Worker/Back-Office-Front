@@ -1,0 +1,14 @@
+version: "3.2"
+services:
+  frontend:
+    restart: always
+    command : yarn start
+    container_name: aishortsmaker-front
+    build:
+      context: .
+      dockerfile: Dockerfile
+    ports:
+      - ${SERVER_PORT}:${SERVER_PORT}
+    environment:
+      PORT: ${SERVER_PORT}
+    stdin_open: true
