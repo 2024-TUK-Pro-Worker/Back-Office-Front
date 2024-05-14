@@ -6,65 +6,52 @@ import Spinner from "@/components/shared/spinner";
 import {useCookies} from "react-cookie";
 import {useJwt} from "react-jwt";
 import {useRouter} from "next/router";
-import React, {createContext, PropsWithChildren, useContext, useEffect} from "react";
-
-interface IAuthProviderProps {
-}
+import React, {createContext, PropsWithChildren, ReactNode, useContext, useEffect, useState} from "react";
 
 interface IAuthContext {
-  initialized: boolean;
   userInfo: any;
 }
 
-export const AuthContext = createContext<IAuthContext | null>(null);
+const AuthContext = createContext<IAuthContext>({userInfo: null});
 
-export function useAuth() {
-  const result = useContext(AuthContext);
-  if (!result?.initialized) {
-    throw new Error("Auth context must be used within a AuthProvider!");
-  }
-  return result;
-}
+export const useAuth = () => useContext(AuthContext);
 
-const publicPageList = ["/login"];
-
-const isPublicPage = (pathname: string) => {
-  return publicPageList.includes(pathname);
-};
-
-const AuthProvider = ({children}: PropsWithChildren<IAuthProviderProps>) => {
-  const router = useRouter();
+const AuthProvider = ({children}: { children: ReactNode }) => {
   const [cookies, setCookie, removeCookie] = useCookies(['authorization']);
-  const {decodedToken, isExpired} = useJwt<{name: string, email: string}>(cookies.authorization);
+  const {decodedToken, isExpired} = useJwt(cookies.authorization);
+  const [isLoading, setLoading] = useState(true);  // 로딩 상태 추가
+  const router = useRouter();
 
   useEffect(() => {
-    console.log(isExpired);
-    if (router.pathname === "/useError" || router.pathname === "/_error" ){
-      return;
+    // 로딩 상태 확인을 위한 초기화
+    if (cookies.authorization) {
+      // 토큰 존재 시 로딩 상태 업데이트
+      setLoading(false);
+    } else {
+      // 토큰 미존재 시 바로 로그인 페이지로 이동하지 않고 로딩 상태 업데이트
+      setTimeout(() => setLoading(false), 500); // 또는 적절한 초기화 로직
     }
-    if (decodedToken && isPublicPage(router.pathname)) {
-      router.push("/");
-    } else if (!decodedToken && !isPublicPage(router.pathname)) {
-      router.push("/login");
-    } else if (decodedToken && isExpired && !isPublicPage(router.pathname)) {
-      removeCookie('authorization');
-      router.push("/login");
+  }, [cookies.authorization]);
+
+  useEffect(() => {
+    console.log(decodedToken, router.pathname)
+    if (!isLoading && !decodedToken && router.pathname !== '/login') {
+      if (isExpired || !decodedToken) {
+        removeCookie('authorization', {path: '/'});  // 쿠키 삭제
+        router.push('/login');
+      }
+      router.push('/login');
+    }else if(!isLoading && !decodedToken && router.pathname === '/login'){
+      router.push('/');
     }
-  }, [router, decodedToken, isExpired]);
+  }, [isLoading, router, decodedToken, removeCookie, isExpired]);
 
-  if (decodedToken && isPublicPage(router.pathname)) {
-    return <Spinner />;
+  if (isLoading) {
+    // 로딩 중 표시 처리
+    return <Spinner/>;
   }
-
-  if (isPublicPage(router.pathname)) {
-    return <>{children}</>;
-  }
-
-  if (!decodedToken?.name) {
-    return <Spinner />;
-  }
-
-  return <AuthContext.Provider value={{ initialized: true, userInfo: decodedToken }}>{children}</AuthContext.Provider>;
+  // 로그인 상태를 제공하는 컨텍스트
+  return <AuthContext.Provider value={{userInfo: decodedToken}}>{children}</AuthContext.Provider>;
 };
 
 export default React.memo(AuthProvider);

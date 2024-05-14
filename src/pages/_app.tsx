@@ -10,9 +10,10 @@ import type { AppProps } from "next/app";
 import localFont from "next/font/local";
 import Head from "next/head";
 import { SWRConfig } from "swr";
-import { useEffect, useState } from "react";
+import {Suspense, useEffect, useState} from "react";
 import { useRouter } from "next/router";
 import { ErrorContext } from "@/context/Error";
+import Spinner from "@/components/shared/spinner";
 
 const pretendard = localFont({
   src: "../fonts/PretendardVariable.woff2",
@@ -43,7 +44,8 @@ export default function App({ Component, pageProps: { session, ...pageProps } }:
 
   return (
     <>
-      <SeoHead />
+      <Suspense fallback={<Spinner />}>
+        <SeoHead />
       <Head>
         <link rel="apple-touch-icon" sizes="180x180" href="/img/favicon/apple-touch-icon.png" />
         <link rel="android-chrome" sizes="192x192" href="/img/favicon/android-chrome-192x192.png" />
@@ -70,6 +72,7 @@ export default function App({ Component, pageProps: { session, ...pageProps } }:
           </ErrorContext.Provider>
         </SWRConfig>
       </ConfigProvider>
+      </Suspense>
     </>
   );
 }

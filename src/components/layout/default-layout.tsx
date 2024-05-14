@@ -8,6 +8,8 @@ import MenuBtn from "./menu-btn";
 import PageHeader from "./page-header";
 import Profile from "./profile";
 import Sidebar from "./sidebar";
+import {useCookies} from "react-cookie";
+import {useJwt} from "react-jwt";
 
 export interface IPageHeader {
   title: string;
@@ -25,7 +27,12 @@ interface IDefaultLayoutProps {
 const DefaultLayout = ({ Page, ...props }: IDefaultLayoutProps) => {
   const [isShowSidebar, setIsShowSidebar] = useState(true);
   const [isShowPopupMenu, setIsShowPopupMenu] = useState(false);
+
   const router = useRouter();
+
+  const [cookies, setCookie, removeCookie] = useCookies(['authorization']);
+
+  const {decodedToken, isExpired} = useJwt<{name: string, email: string}>(cookies.authorization);
 
   const showSidebar = useCallback(() => {
     setIsShowSidebar(true);
@@ -47,6 +54,21 @@ const DefaultLayout = ({ Page, ...props }: IDefaultLayoutProps) => {
   useEffect(() => {
     setActive(false);
   }, [router.asPath, setActive]);
+  //
+  // useEffect(() => {
+  //   console.log(isExpired);
+  //   if (router.pathname === "/useError" || router.pathname === "/_error" ){
+  //     return;
+  //   }
+  //   if (decodedToken && isPublicPage(router.pathname)) {
+  //     router.push("/");
+  //   } else if (!decodedToken && !isPublicPage(router.pathname)) {
+  //     router.push("/login");
+  //   } else if (decodedToken && isExpired && !isPublicPage(router.pathname)) {
+  //     removeCookie('authorization');
+  //     router.push("/login");
+  //   }
+  // }, [router, decodedToken, isExpired]);
 
   return (
     <div>
