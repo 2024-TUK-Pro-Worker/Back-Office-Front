@@ -34,15 +34,16 @@ const AuthProvider = ({children}: { children: ReactNode }) => {
   }, [cookies.authorization]);
 
   useEffect(() => {
-    console.log(decodedToken, router.pathname)
+    console.log(decodedToken)
     if (!isLoading && !decodedToken && router.pathname !== '/login') {
       if (isExpired || !decodedToken) {
         removeCookie('authorization', {path: '/'});  // 쿠키 삭제
         router.push('/login');
       }
       router.push('/login');
-    }else if(!isLoading && !decodedToken && router.pathname === '/login'){
+    }else if(!isLoading && decodedToken && router.pathname === '/login'){
       router.push('/');
+
     }
   }, [isLoading, router, decodedToken, removeCookie, isExpired]);
 
