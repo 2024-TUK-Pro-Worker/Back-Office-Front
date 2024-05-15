@@ -1,5 +1,4 @@
 import { Modal, ModalProps } from "antd";
-import { X } from "lucide-react";
 import React, { PropsWithChildren } from "react";
 import style from "./default-modal.module.css";
 
