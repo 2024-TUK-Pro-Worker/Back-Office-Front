@@ -1,5 +1,4 @@
 import {Dispatch, FC} from "react";
-import style from "parchment/src/attributor/style";
 import styled from "styled-components";
 import {Input} from "antd";
 
