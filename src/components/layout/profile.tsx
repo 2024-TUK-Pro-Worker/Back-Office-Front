@@ -8,10 +8,14 @@ const Profile = () => {
   const {userInfo} = useAuth();
   const [, , removeCookie] = useCookies(['authorization']);
 
-  const hostname =
-    (typeof window !== 'undefined' && window.location.hostname)
+  let hostname =
+    (typeof window !== 'undefined' && window?.location?.hostname)
       ? window.location.hostname
       : '';
+
+  if (hostname !== 'localhost') {
+    hostname = '.' + hostname
+  }
 
   const items: MenuProps["items"] = [
     {
