@@ -1,10 +1,12 @@
 import {getVideoList} from "@/client/video";
 import {useCallback, useEffect, useState} from "react";
-import {Alert, Select, Skeleton} from "antd";
+import {Alert, notification, Select, Skeleton} from "antd";
 import styled from "styled-components";
 import ShortsLogo from 'public/img/logo/Youtube_shorts_icon.svg'
 import Image from "next/image";
 import DefaultModal from "@/components/shared/ui/default-modal";
+import {FileVideo} from "lucide-react";
+import {uploadYoutube} from "@/client/youtube";
 
 const UploadYoutubeWrapper = styled.div`
   width: 315px;
@@ -35,6 +37,8 @@ export const YoutubeUpload = () => {
   const [isModalOpen, setIsModalOpen] = useState(false);
   const [updateLoading, setUpdateLoading] = useState(false);
   const [selectUploadVideo, setSelectUploadVideo] = useState<number | undefined>(undefined);
+  const [api, contextHolder] = notification.useNotification();
+
   const errorHandle = (e: any) => {
     setErrorMessage(e?.message || '알수 없는 에러');
     setIsError(true)
@@ -66,12 +70,41 @@ export const YoutubeUpload = () => {
     }
 
   }
+  const openNotification = (message: string, description?: string) => {
+    api.success({
+      message,
+      description,
+      placement: 'topRight',
+      duration: 2
+    });
+  };
+  const uploadYoutubeVideo = async () => {
+    try {
+      if (!selectUploadVideo) return;
+      setUpdateLoading(true)
+      await uploadYoutube({videoId: selectUploadVideo});
+      setUpdateLoading(false)
+      setSelectUploadVideo(undefined)
+      openNotification('영상 업로드가 완료되었습니다!')
+      await getVideoListData()
+    }catch (e) {
+      errorHandle(e)
+      setUpdateLoading(false)
+      setSelectUploadVideo(undefined)
+    }
+
+  }
 
   const UploadVideoComponent = useCallback(() => {
-    return (<video controls>
-      <source src={`${process.env.NEXT_PUBLIC_API_ENDPOINT}/api/video/preview/${selectUploadVideo}`}
-              type={'video/mp4'}/>
-    </video>)
+    return (
+      <>
+        <div className={'mt-3 mb-2 flex'}><FileVideo className={'mr-1'}/>영상 미리보기</div>
+        <video controls>
+          <source src={`${process.env.NEXT_PUBLIC_API_ENDPOINT}/api/video/preview/${selectUploadVideo}`}
+                  type={'video/mp4'}/>
+        </video>
+      </>
+    )
   }, [selectUploadVideo])
 
   useEffect(() => {
@@ -83,6 +116,7 @@ export const YoutubeUpload = () => {
 
   return (
     <>
+      {contextHolder}
       <DefaultModal
         handleHide={() => {
           setIsModalOpen(false)
@@ -90,12 +124,18 @@ export const YoutubeUpload = () => {
         title={`영상 업로드`}
         open={isModalOpen}
         confirmLoading={updateLoading}
-        onOk={() => {
+        onOk={uploadYoutubeVideo}
+        afterClose={() => {
           setUpdateLoading(false)
-        }}>
-        <Select options={notUploadVideoList} className={'w-full'} onSelect={(data) => {
-          setSelectUploadVideo(data);
-        }}/>
+          setSelectUploadVideo(undefined)
+        }}
+        width={400}
+      >
+        <Select options={notUploadVideoList} className={'w-full'} placeholder={'업로드 할 영상을 선택 해주세요'}
+                value={selectUploadVideo}
+                onSelect={(data) => {
+                  setSelectUploadVideo(data);
+                }}/>
         {selectUploadVideo && (<UploadVideoComponent/>)}
       </DefaultModal>
       {isError && <Alert
@@ -109,12 +149,12 @@ export const YoutubeUpload = () => {
         closable
       />}
       <div className={'flex w-full gap-5'}>
-        <UploadYoutubeWrapper className={'rounded-md'}>
+        <UploadYoutubeWrapper className={'rounded-md'} onClick={() =>
+          setIsModalOpen(true)
+        }>
           <UploadTitle className={'m-3'}>영상 업로드</UploadTitle>
           <UploadIcon>
-            <Image src={ShortsLogo} alt={'shorts'} width={68} onClick={() =>
-              setIsModalOpen(true)
-            }/>
+            <Image src={ShortsLogo} alt={'shorts'} width={68}/>
           </UploadIcon>
         </UploadYoutubeWrapper>
         {isLoading ?
