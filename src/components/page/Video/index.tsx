@@ -1,4 +1,4 @@
-import {getVideoList} from "@/client/video";
+import {getVideoList, putVideoDetail} from "@/client/video";
 import {useEffect, useState} from "react";
 import DefaultTable from "@/components/shared/ui/default-table";
 import {Skeleton} from "antd";
@@ -11,6 +11,7 @@ export const VideoList = () => {
   const [isLoading, setIsLoading] = useState(true);
   const [isModalOpen, setIsModalOpen] = useState(false);
   const [editVideoData, setEditVideoData] = useState<any>({})
+  const [updateLoading, setUpdateLoading] = useState(false);
   const getVideoListData = async () => {
     setIsLoading(true)
     const a = await getVideoList();
@@ -22,23 +23,6 @@ export const VideoList = () => {
     }))
     setIsLoading(false)
   }
-  useEffect(() => {
-    getVideoListData()
-  }, []);
-  const dataSource2 = [
-    {
-      key: '1',
-      name: 'Mike',
-      age: 32,
-      address: '10 Downing Street',
-    },
-    {
-      key: '2',
-      name: 'John',
-      age: 42,
-      address: '10 Downing Street',
-    },
-  ];
 
   const columns = [
     {
@@ -96,13 +80,31 @@ export const VideoList = () => {
       }
     },
   ];
+
+  useEffect(() => {
+    getVideoListData()
+  }, []);
+
   return (
     <>
-      <DefaultModal handleHide={() => {
-        setIsModalOpen(false)
-      }} title={`${editVideoData.gptTitle} 상세 수정`} open={isModalOpen} onOk={() => {
-        setIsModalOpen(false)
-      }}>
+      <DefaultModal
+        handleHide={() => {
+          setIsModalOpen(false)
+        }}
+        title={`${editVideoData.gptTitle} 상세 수정`}
+        open={isModalOpen}
+        confirmLoading={updateLoading}
+        onOk={async () => {
+          setUpdateLoading(true)
+          await putVideoDetail({
+            videoId: editVideoData.id,
+            content: editVideoData.content,
+            title: editVideoData.title,
+            tags: editVideoData.tags
+          })
+          setUpdateLoading(false)
+          setIsModalOpen(false)
+        }}>
         <VideoDetailComponent editVideoData={editVideoData} setEditVideoData={setEditVideoData}/>
       </DefaultModal>
       {isLoading ? (<Skeleton/>) : <DefaultTable columns={columns} dataSource={dataSource} onRow={(record, index) => {

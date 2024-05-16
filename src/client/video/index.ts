@@ -1,4 +1,4 @@
-import { ISO8601DateTime } from "@/types/common";
+import {ISO8601DateTime} from "@/types/common";
 import qs from "qs";
 import useSWR from "swr";
 import {axiosApi, fetchApi} from "../base";
@@ -67,3 +67,13 @@ export const getVideoList = async () => {
     return;
   }
 };
+
+export const putVideoDetail = async (data: { videoId: number; title: string; content: string; tags: string[] }) => {
+  try {
+    const result = await axiosApi.put("api/video/detail", data);
+    console.log(result.data)
+    return result.data
+  } catch (e) {
+    return;
+  }
+}

@@ -36,7 +36,6 @@ const AuthProvider = ({children}: { children: ReactNode }) => {
   }, [cookies.authorization]);
 
   useEffect(() => {
-    console.log(decodedToken)
     if (isLoading && router.pathname === '/login'){
       setLoading(false);
     }
