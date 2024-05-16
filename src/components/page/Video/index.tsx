@@ -1,7 +1,7 @@
 import {getVideoList, putVideoDetail} from "@/client/video";
 import {useEffect, useState} from "react";
 import DefaultTable from "@/components/shared/ui/default-table";
-import {Skeleton} from "antd";
+import {Alert, Skeleton} from "antd";
 import dayjs from "dayjs";
 import DefaultModal from "@/components/shared/ui/default-modal";
 import {VideoDetailComponent} from "@/components/page/Video/detail";
@@ -12,16 +12,29 @@ export const VideoList = () => {
   const [isModalOpen, setIsModalOpen] = useState(false);
   const [editVideoData, setEditVideoData] = useState<any>({})
   const [updateLoading, setUpdateLoading] = useState(false);
+  const [errorMessage, setErrorMessage] = useState<string>('')
+  const [isError, setIsError] = useState(false)
+
+  const errorHandle = (e:any) => {
+    setErrorMessage(e?.message || '알수 없는 에러');
+    setIsError(true)
+  }
   const getVideoListData = async () => {
-    setIsLoading(true)
-    const a = await getVideoList();
-    setDataSource(a.data.map((data: any, index: number) => {
-      return {
-        key: index,
-        ...data
-      }
-    }))
-    setIsLoading(false)
+    try {
+      setIsLoading(true)
+      const response = await getVideoList();
+      setDataSource(response?.data?.map((data: any, index: number) => {
+        return {
+          key: index,
+          ...data
+        }
+      }))
+      setIsLoading(false)
+    }catch (e) {
+      errorHandle(e)
+      setIsLoading(false)
+    }
+
   }
 
   const columns = [
@@ -81,6 +94,25 @@ export const VideoList = () => {
     },
   ];
 
+  const UpdateDetail = async () => {
+    try {
+      setUpdateLoading(true)
+      await putVideoDetail({
+        videoId: editVideoData.id,
+        content: editVideoData.content,
+        title: editVideoData.title,
+        tags: editVideoData.tags
+      })
+      setUpdateLoading(false)
+      setIsModalOpen(false)
+      await getVideoListData()
+    } catch (e: any) {
+      errorHandle(e)
+      setUpdateLoading(false)
+      setIsModalOpen(false)
+    }
+  }
+
   useEffect(() => {
     getVideoListData()
   }, []);
@@ -94,19 +126,19 @@ export const VideoList = () => {
         title={`${editVideoData.gptTitle} 상세 수정`}
         open={isModalOpen}
         confirmLoading={updateLoading}
-        onOk={async () => {
-          setUpdateLoading(true)
-          await putVideoDetail({
-            videoId: editVideoData.id,
-            content: editVideoData.content,
-            title: editVideoData.title,
-            tags: editVideoData.tags
-          })
-          setUpdateLoading(false)
-          setIsModalOpen(false)
-        }}>
+        onOk={UpdateDetail}>
         <VideoDetailComponent editVideoData={editVideoData} setEditVideoData={setEditVideoData}/>
       </DefaultModal>
+      {isError && <Alert
+        className={'mb-5'}
+        message={errorMessage}
+        type={'error'}
+        afterClose={() => {
+          setIsError(false)
+          setErrorMessage('')
+        }}
+        closable
+      />}
       {isLoading ? (<Skeleton/>) : <DefaultTable columns={columns} dataSource={dataSource} onRow={(record, index) => {
         return {
           style: {cursor: "pointer"},

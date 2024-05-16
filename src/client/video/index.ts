@@ -61,9 +61,10 @@ import {axiosApi, fetchApi} from "../base";
 export const getVideoList = async () => {
   try {
     const result = await axiosApi.get("api/video/list");
-    console.log(result.data)
-    return result.data
+    console.log(result?.data)
+    return result?.data
   } catch (e) {
+    console.log(e)
     return;
   }
 };
@@ -74,6 +75,6 @@ export const putVideoDetail = async (data: { videoId: number; title: string; con
     console.log(result.data)
     return result.data
   } catch (e) {
-    return;
+    throw new Error('서버가 원활하지 않습니다. 잠시 후 다시 시도 해주세요.');
   }
 }
