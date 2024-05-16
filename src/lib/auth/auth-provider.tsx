@@ -23,18 +23,23 @@ const AuthProvider = ({children}: { children: ReactNode }) => {
   const router = useRouter();
 
   useEffect(() => {
-    // 로딩 상태 확인을 위한 초기화
     if (cookies.authorization) {
-      // 토큰 존재 시 로딩 상태 업데이트
       setLoading(false);
     } else {
-      // 토큰 미존재 시 바로 로그인 페이지로 이동하지 않고 로딩 상태 업데이트
-      setTimeout(() => setLoading(false), 500); // 또는 적절한 초기화 로직
+      // 사용자가 로그인 페이지에 있지 않은 상태에서 인증 정보가 없다면 로그인 페이지로 리디렉트
+      if (router.pathname !== '/login') {
+        router.push('/login');
+        return;
+      }
+      setLoading(false);
     }
   }, [cookies.authorization]);
 
   useEffect(() => {
     console.log(decodedToken)
+    if (isLoading && router.pathname === '/login'){
+      setLoading(false);
+    }
     if (!isLoading && !decodedToken && router.pathname !== '/login') {
       if (isExpired || !decodedToken) {
         removeCookie('authorization', {path: '/'});  // 쿠키 삭제
@@ -43,7 +48,6 @@ const AuthProvider = ({children}: { children: ReactNode }) => {
       router.push('/login');
     }else if(!isLoading && decodedToken && router.pathname === '/login'){
       router.push('/');
-
     }
   }, [isLoading, router, decodedToken, removeCookie, isExpired]);
 
