@@ -1,6 +1,6 @@
 import {getVideoList} from "@/client/video";
 import {useEffect, useState} from "react";
-import {Alert} from "antd";
+import {Alert, Skeleton} from "antd";
 import styled from "styled-components";
 import {Plus} from "lucide-react";
 import ShortsLogo from 'public/img/logo/Youtube_shorts_icon.svg'
@@ -29,6 +29,7 @@ const UploadIcon = styled.div`
 export const YoutubeUpload = () => {
   const [isLoading, setIsLoading] = useState(true);
   const [uploadVideoList, setUploadVideoList] = useState<any[]>([]);
+  const [notUploadVideoList, setNotUploadVideoList] = useState<any[]>([])
   const [errorMessage, setErrorMessage] = useState<string>('')
   const [isError, setIsError] = useState(false)
 
@@ -79,7 +80,7 @@ export const YoutubeUpload = () => {
             <Image src={ShortsLogo} alt={'shorts'} width={68}/>
           </UploadIcon>
         </UploadYoutubeWrapper>
-        {uploadVideoList.map(({uploadId}: { uploadId: string }) => {
+        {isLoading ? <Skeleton.Image active={true} style={{width: '315px', height:'560px'}}/> : uploadVideoList.map(({uploadId}: { uploadId: string }) => {
           return (
             <iframe
               key={uploadId}
