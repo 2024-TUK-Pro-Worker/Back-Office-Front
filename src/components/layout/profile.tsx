@@ -10,8 +10,6 @@ const Profile = () => {
 
   const serviceDomain = (process.env.NEXT_PUBLIC_SERVICE_DOMAIN !== 'localhost') ? `.${process.env.NEXT_PUBLIC_SERVICE_DOMAIN}` : 'localhost';
 
-  console.log(`${serviceDomain}`);
-
   const items: MenuProps["items"] = [
     {
       label: (
