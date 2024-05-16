@@ -1,10 +1,12 @@
 import {useAuth} from "@/lib/auth/auth-provider";
 import {Dropdown, MenuProps} from "antd";
-import {ChevronDown, LogOut} from "lucide-react";
+import {ChevronDown} from "lucide-react";
 import React from "react";
 import {useCookies} from "react-cookie";
+import {useRouter} from "next/router";
 
 const Profile = () => {
+  const router = useRouter();
   const {userInfo} = useAuth();
   const [, , removeCookie] = useCookies(['authorization']);
 
@@ -15,6 +17,7 @@ const Profile = () => {
       label: (
         <a onClick={() => {
           removeCookie('authorization', {path: '/', domain: serviceDomain});
+          router.push('/login');
         }} className="link-with-icon">
           로그아웃
         </a>
