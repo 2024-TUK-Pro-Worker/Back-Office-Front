@@ -5,7 +5,7 @@ interface IPageDescriptionProps{
 }
 const PageDescription:FC<IPageDescriptionProps> = ({children}) => {
   return (
-    <h2 className="title">{children}</h2>
+    <h2 className="title flex">{children}</h2>
   )
 }
 

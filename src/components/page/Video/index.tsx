@@ -1,7 +1,7 @@
 import {getVideoList, putVideoDetail} from "@/client/video";
 import {useEffect, useState} from "react";
 import DefaultTable from "@/components/shared/ui/default-table";
-import {Alert, Skeleton} from "antd";
+import {Alert, notification, Skeleton} from "antd";
 import dayjs from "dayjs";
 import DefaultModal from "@/components/shared/ui/default-modal";
 import {VideoDetailComponent} from "@/components/page/Video/detail";
@@ -14,8 +14,18 @@ export const VideoList = () => {
   const [updateLoading, setUpdateLoading] = useState(false);
   const [errorMessage, setErrorMessage] = useState<string>('')
   const [isError, setIsError] = useState(false)
+  const [api, contextHolder] = notification.useNotification();
 
-  const errorHandle = (e:any) => {
+  const openNotification = (message: string, description?: string) => {
+    api.success({
+      message,
+      description,
+      placement: 'topRight',
+      duration: 2
+    });
+  };
+
+  const errorHandle = (e: any) => {
     setErrorMessage(e?.message || '알수 없는 에러');
     setIsError(true)
   }
@@ -30,7 +40,7 @@ export const VideoList = () => {
         }
       }))
       setIsLoading(false)
-    }catch (e) {
+    } catch (e) {
       errorHandle(e)
       setIsLoading(false)
     }
@@ -105,6 +115,7 @@ export const VideoList = () => {
       })
       setUpdateLoading(false)
       setIsModalOpen(false)
+      openNotification('업데이트 완료되었습니다!', `${editVideoData.gptTitle} 영상이 업데이트 되었습니다`)
       await getVideoListData()
     } catch (e: any) {
       errorHandle(e)
@@ -119,6 +130,7 @@ export const VideoList = () => {
 
   return (
     <>
+      {contextHolder}
       <DefaultModal
         handleHide={() => {
           setIsModalOpen(false)
