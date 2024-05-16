@@ -8,20 +8,13 @@ const Profile = () => {
   const {userInfo} = useAuth();
   const [, , removeCookie] = useCookies(['authorization']);
 
-  let hostname =
-    (typeof window !== 'undefined' && window?.location?.hostname)
-      ? window.location.hostname
-      : '';
-
-  if (hostname !== 'localhost') {
-    hostname = '.' + hostname
-  }
+  const serviceDomain = (process.env.SERVICE_DOMAIN !== 'localhost') ? `.${process.env.SERVICE_DOMAIN}` : 'localhost';
 
   const items: MenuProps["items"] = [
     {
       label: (
         <a onClick={() => {
-          removeCookie('authorization', {path: '/', domain: hostname});
+          removeCookie('authorization', {path: '/', domain: serviceDomain});
         }} className="link-with-icon">
           로그아웃
         </a>
