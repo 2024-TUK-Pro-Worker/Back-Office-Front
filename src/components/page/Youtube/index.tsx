@@ -1,6 +1,30 @@
 import {getVideoList} from "@/client/video";
 import {useEffect, useState} from "react";
 import {Alert} from "antd";
+import styled from "styled-components";
+import {Plus} from "lucide-react";
+import ShortsLogo from 'public/img/logo/Youtube_shorts_icon.svg'
+import Image from "next/image";
+
+const UploadYoutubeWrapper = styled.div`
+  width: 315px;
+  height: 560px;
+  border: 1px dashed #d9d9d9;
+  background-color: #fafafa;
+  cursor: pointer;
+  position: relative;
+`
+const UploadTitle = styled.div`
+  color: rgba(0, 0, 0, 0.88);
+`
+
+const UploadIcon = styled.div`
+  position: absolute;
+  top: 50%;
+  left: 50%;
+  transform: translate(-50%, -50%);
+  margin-top: 16px;
+`
 
 export const YoutubeUpload = () => {
   const [isLoading, setIsLoading] = useState(true);
@@ -49,6 +73,12 @@ export const YoutubeUpload = () => {
         closable
       />}
       <div className={'flex w-full gap-5'}>
+        <UploadYoutubeWrapper className={'rounded-md'}>
+          <UploadTitle className={'m-3'}>영상 업로드</UploadTitle>
+          <UploadIcon>
+            <Image src={ShortsLogo} alt={'shorts'} width={68}/>
+          </UploadIcon>
+        </UploadYoutubeWrapper>
         {uploadVideoList.map(({uploadId}: { uploadId: string }) => {
           return (
             <iframe
