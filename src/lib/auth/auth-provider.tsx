@@ -36,16 +36,15 @@ const AuthProvider = ({children}: { children: ReactNode }) => {
   }, [cookies.authorization]);
 
   useEffect(() => {
-    if (isLoading && router.pathname === '/login'){
+    if (isLoading && router.pathname === '/login') {
       setLoading(false);
     }
     if (!isLoading && !decodedToken && router.pathname !== '/login') {
       if (isExpired || !decodedToken) {
-        removeCookie('authorization', {path: '/'});  // 쿠키 삭제
-        router.push('/login');
+        const serviceDomain = (process.env.NEXT_PUBLIC_SERVICE_DOMAIN !== 'localhost') ? `.${process.env.NEXT_PUBLIC_SERVICE_DOMAIN}` : 'localhost';
+        removeCookie('authorization', {path: '/', domain: serviceDomain});  // 쿠키 삭제
       }
-      router.push('/login');
-    }else if(!isLoading && decodedToken && router.pathname === '/login'){
+    } else if (!isLoading && decodedToken && router.pathname === '/login') {
       router.push('/');
     }
   }, [isLoading, router, decodedToken, removeCookie, isExpired]);
