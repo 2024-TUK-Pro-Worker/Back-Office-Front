@@ -30,7 +30,7 @@ const DefaultLayout = ({ Page, ...props }: IDefaultLayoutProps) => {
 
   const router = useRouter();
 
-  const [cookies, setCookie, removeCookie] = useCookies(['authorization']);
+  const [cookies] = useCookies(['authorization']);
 
   const {decodedToken, isExpired} = useJwt<{name: string, email: string}>(cookies.authorization);
 

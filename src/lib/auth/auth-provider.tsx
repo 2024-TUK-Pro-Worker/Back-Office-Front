@@ -17,7 +17,7 @@ const AuthContext = createContext<IAuthContext>({userInfo: null});
 export const useAuth = () => useContext(AuthContext);
 
 const AuthProvider = ({children}: { children: ReactNode }) => {
-  const [cookies, setCookie, removeCookie] = useCookies(['authorization']);
+  const [cookies, , removeCookie] = useCookies(['authorization']);
   const {decodedToken, isExpired} = useJwt(cookies.authorization);
   const [isLoading, setLoading] = useState(true);  // 로딩 상태 추가
   const router = useRouter();
