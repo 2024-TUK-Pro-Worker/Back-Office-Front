@@ -15,6 +15,11 @@
     --base-color-link:rgb(12, 68, 118);
     --base-color-hover: rgb(120, 188, 240);
   }
+
+  .edit-disabled{
+    background-color: #efefef;
+    cursor: not-allowed !important;
+  }
 }
 
 @layer components {

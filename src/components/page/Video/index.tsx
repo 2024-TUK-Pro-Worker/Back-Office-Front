@@ -36,6 +36,7 @@ export const VideoList = () => {
       setDataSource(response?.data?.map((data: any, index: number) => {
         return {
           key: index,
+          editable: !data.uploadId,
           ...data
         }
       }))
@@ -59,13 +60,23 @@ export const VideoList = () => {
       key: 'title',
       render: (text: string | null) => {
         if (text) return text;
-        return '업로드 된 영상이 아닙니다.'
+        return '설정된 제목이 없습니다.'
+      }
+    },
+    {
+      title: '영상 내용',
+      dataIndex: 'content',
+      key: 'content',
+      render: (text: string | null) => {
+        if (text) return text;
+        return '설정된 내용이 없습니다.'
       }
     },
     {
       title: '삭제 유무',
       dataIndex: 'isDeleted',
       key: 'isDeleted',
+      width: 90,
       render: (text: string) => {
         switch (text) {
           case 'Y':
@@ -151,16 +162,20 @@ export const VideoList = () => {
         }}
         closable
       />}
-      {isLoading ? (<Skeleton/>) : <DefaultTable columns={columns} dataSource={dataSource} onRow={(record, index) => {
-        return {
-          style: {cursor: "pointer"},
-          onClick: () => {
-            setIsModalOpen(true);
-            setEditVideoData(record);
-            console.log(record, index);
+      {isLoading ? (<Skeleton/>) : <DefaultTable
+        columns={columns}
+        dataSource={dataSource}
+        rowClassName={(record) => record.editable ? '' : 'edit-disabled'}
+        onRow={(record, index) => {
+          return {
+            style: {cursor: "pointer"},
+            onClick: () => {
+              if (!record.editable) return;
+              setIsModalOpen(true);
+              setEditVideoData(record);
+            }
           }
-        }
-      }}></DefaultTable>}
+        }}/>}
     </>
   )
 }
