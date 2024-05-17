@@ -10,7 +10,11 @@ import {uploadYoutube} from "@/client/youtube";
 
 const UploadYoutubeWrapper = styled.div`
   width: 315px;
+  min-width: 315px;
+  max-width: 315px;
   height: 560px;
+  min-height: 560px;
+  max-height: 560px;
   border: 1px dashed #d9d9d9;
   background-color: #fafafa;
   cursor: pointer;
