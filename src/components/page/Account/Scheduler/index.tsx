@@ -1,5 +1,11 @@
 import {FC, useCallback, useEffect, useState} from "react";
-import {getScheduler, getSchedulerStart, getSchedulerStatus, getSchedulerUpdate} from "@/client/account";
+import {
+  getScheduler,
+  getSchedulerDelete,
+  getSchedulerStart,
+  getSchedulerStatus,
+  getSchedulerUpdate
+} from "@/client/account";
 import cronstrue from 'cronstrue';
 import {Button, Card, Col, Divider, Input, notification, Result, Row, Statistic} from "antd";
 import Cron from "react-js-cron";
@@ -51,10 +57,10 @@ export const AccountScheduler: FC<any> = () => {
   };
   const getSchedulerExpression = async () => {
     const response = await getScheduler();
-    console.log(response?.data?.cron_schedule);
+    console.log(response?.data?.cronSchedule);
     setExpression({
-      input: response?.data?.cron_schedule || '* * * * *',
-      cron: response?.data?.cron_schedule || '* * * * *'
+      input: response?.data?.cronSchedule || '* * * * *',
+      cron: response?.data?.cronSchedule || '* * * * *'
     })
   }
 
@@ -74,6 +80,12 @@ export const AccountScheduler: FC<any> = () => {
   const buttonClickHandle = async () => {
     if (cronStatus.status === 'success') {
       //삭제
+      const response = await getSchedulerDelete();
+      if (response?.result === 'success') {
+        openSuccessNotification('스케줄러 삭제에 성공하였습니다.', '잠시 후 다시 시도 해주십시오.')
+      }else{
+        openErrorNotification('스케줄러 삭제에 실패하였습니다.', '잠시 후 다시 시도 해주십시오.')
+      }
     } else {
       // 추가
       const response = await getSchedulerUpdate({schedule: expression.cron});
@@ -99,7 +111,7 @@ export const AccountScheduler: FC<any> = () => {
       {contextHolder}
       <Divider orientation="center">스케줄러</Divider>
       <Row>
-        <Col span={8}>
+        <Col span={8} offset={2}>
           <Card title={'스케줄러 설정'} style={{minWidth: 360}}>
             <Input value={expression.input} onChange={(e) => {
               setExpression({
@@ -131,7 +143,7 @@ export const AccountScheduler: FC<any> = () => {
               danger={cronStatus.status === 'success'}>{cronStatus.status === 'success' ? '삭제하기' : '설정하기'}</Button>
           </Card>
         </Col>
-        <Col span={8} offset={8} style={{minWidth: 360}}>
+        <Col span={8} offset={2} style={{minWidth: 360}}>
           <Card title={'스케줄러 상태'}>
             <Result
               status={cronStatus.status}
