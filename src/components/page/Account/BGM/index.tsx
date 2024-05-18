@@ -35,6 +35,7 @@ export const BGM: FC<any> = () => {
     multiple: true,
     accept: '.mp3',
     action: `${process.env.NEXT_PUBLIC_API_ENDPOINT}/api/account/bgm/insert`,
+    fileList,
     beforeUpload: file => {
       console.log(file,fileList)
       setFileList((old)=>{
@@ -110,12 +111,12 @@ export const BGM: FC<any> = () => {
         </p>
         <Button
           className={'mt-2'}
-          disabled={fileList.length === 0}
           loading={isUploadLoading}
           iconPosition={'end'}
           onClick={async (e) => {
             e.preventDefault();
             e.stopPropagation();
+            if (!fileList?.length) return;
             await bgmInsert();
           }}>등록하기</Button>
       </Dragger>

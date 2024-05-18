@@ -1,12 +1,12 @@
 import {getVideoList} from "@/client/video";
 import {useCallback, useEffect, useState} from "react";
-import {Alert, notification, Select, Skeleton} from "antd";
+import {Alert, Badge, Button, notification, Select, Skeleton} from "antd";
 import styled from "styled-components";
 import ShortsLogo from 'public/img/logo/Youtube_shorts_icon.svg'
 import Image from "next/image";
 import DefaultModal from "@/components/shared/ui/default-modal";
 import {FileVideo} from "lucide-react";
-import {uploadYoutube} from "@/client/youtube";
+import {deleteYoutube, uploadYoutube} from "@/client/youtube";
 
 const UploadYoutubeWrapper = styled.div`
   width: 315px;
@@ -91,12 +91,24 @@ export const YoutubeUpload = () => {
       setSelectUploadVideo(undefined)
       openNotification('영상 업로드가 완료되었습니다!')
       await getVideoListData()
-    }catch (e) {
+    } catch (e) {
       errorHandle(e)
       setUpdateLoading(false)
       setSelectUploadVideo(undefined)
     }
 
+  }
+
+  const deleteYoutubeVideo = async (videoId: number) => {
+    try {
+      await deleteYoutube({videoId});
+      openNotification('영상 삭제가 완료되었습니다!')
+      await getVideoListData()
+    } catch (e) {
+      errorHandle(e)
+      setUpdateLoading(false)
+      setSelectUploadVideo(undefined)
+    }
   }
 
   const UploadVideoComponent = useCallback(() => {
@@ -152,7 +164,7 @@ export const YoutubeUpload = () => {
         }}
         closable
       />}
-      <div className={'flex w-full gap-5'}>
+      <div className={'flex w-full gap-5 flex-wrap'}>
         <UploadYoutubeWrapper className={'rounded-md'} onClick={() =>
           setIsModalOpen(true)
         }>
@@ -162,22 +174,41 @@ export const YoutubeUpload = () => {
           </UploadIcon>
         </UploadYoutubeWrapper>
         {isLoading ?
-          <Skeleton.Image active={true} style={{width: '315px', height: '560px'}}/> : uploadVideoList.map(({uploadId}: {
-            uploadId: string
-          }) => {
+          <Skeleton.Image active={true} style={{width: '315px', height: '560px'}}/> : uploadVideoList.map((
+            {
+              uploadId,
+              id
+            }: {
+              uploadId: string;
+              id: number;
+            }) => {
             return (
-              <iframe
+              <Badge.Ribbon
                 key={uploadId}
-                className={'rounded-md'}
-                width="315"
-                height="560"
-                src={`https://www.youtube.com/embed/${uploadId}`}
-                title="YouTube video player"
-                allow="accelerometer; autoplay; clipboard-write; encrypted-media;
+                color={'red'}
+                text={
+                  <Button
+                    type={'link'}
+                    onClick={async () => {
+                      console.log('id', id);
+                      await deleteYoutubeVideo(id)
+                    }}
+                    style={{color: '#ffffff'}}
+                  >
+                    Delete
+                  </Button>}>
+                <iframe
+                  className={'rounded-md'}
+                  width="315"
+                  height="560"
+                  src={`https://www.youtube.com/embed/${uploadId}`}
+                  title="YouTube video player"
+                  allow="accelerometer; autoplay; clipboard-write; encrypted-media;
 gyroscope; picture-in-picture;
 web-share"
-                allowFullScreen
-              />
+                  allowFullScreen
+                />
+              </Badge.Ribbon>
             )
           })}
       </div>

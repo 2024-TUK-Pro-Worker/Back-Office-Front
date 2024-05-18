@@ -1,4 +1,4 @@
-import {getVideoList, putVideoDetail} from "@/client/video";
+import {getVideoList, putVideoDetail, setVideoBgm} from "@/client/video";
 import {useEffect, useState} from "react";
 import DefaultTable from "@/components/shared/ui/default-table";
 import {Alert, notification, Skeleton} from "antd";
@@ -55,7 +55,7 @@ export const VideoList = () => {
       key: 'gptTitle',
     },
     {
-      title: '영상 설명',
+      title: '영상 제목',
       dataIndex: 'title',
       key: 'title',
       render: (text: string | null) => {
@@ -64,12 +64,25 @@ export const VideoList = () => {
       }
     },
     {
-      title: '영상 내용',
+      title: '영상 설명',
       dataIndex: 'content',
       key: 'content',
       render: (text: string | null) => {
         if (text) return text;
         return '설정된 내용이 없습니다.'
+      }
+    },
+    {
+      title: '배경음악 유무',
+      dataIndex: 'appendBgm',
+      key: 'appendBgm',
+      render: (text: string | boolean) => {
+        if (typeof text === 'string') return '확인 할 수 없습니다.';
+        if (text) {
+          return '배경음악 있음'
+        } else {
+          return '배경음악 없음'
+        }
       }
     },
     {
@@ -124,6 +137,9 @@ export const VideoList = () => {
         title: editVideoData.title,
         tags: editVideoData.tags
       })
+      if (editVideoData.bgmName) {
+        await setVideoBgm({videoId: editVideoData.id, bgmFileName: editVideoData.bgmName})
+      }
       setUpdateLoading(false)
       setIsModalOpen(false)
       openNotification('업데이트 완료되었습니다!', `${editVideoData.gptTitle} 영상이 업데이트 되었습니다`)

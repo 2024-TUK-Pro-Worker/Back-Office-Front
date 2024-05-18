@@ -22,3 +22,13 @@ export const putVideoDetail = async (data: { videoId: number; title: string; con
     throw new Error('서버가 원활하지 않습니다. 잠시 후 다시 시도 해주세요.');
   }
 }
+
+export const setVideoBgm = async (data:{videoId: number; bgmFileName:string}) => {
+  try {
+    const result = await axiosApi.patch("api/video/bgm/set", data);
+    console.log(result.data)
+    return result.data
+  } catch (e) {
+    throw new Error('서버가 원활하지 않습니다. 잠시 후 다시 시도 해주세요.');
+  }
+}
