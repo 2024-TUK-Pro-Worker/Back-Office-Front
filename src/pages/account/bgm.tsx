@@ -11,7 +11,7 @@ const BGMPage: IDefaultLayoutPage = () => {
   const { userInfo } = useAuth();
   return (
     <>
-      <PageDescription>🎺{userInfo?.name || "관리자"}님! 풍성한 영상을 위한 첫걸음! 영상에 추가할 배경음악을 등록 해보세요!</PageDescription>
+      <PageDescription>🎼 {userInfo?.name || "관리자"}님! 풍성한 영상을 위한 첫걸음! 영상에 추가할 배경음악을 등록 해보세요! 🎼</PageDescription>
       <BGM/>
     </>
   );

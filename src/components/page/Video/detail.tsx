@@ -38,10 +38,16 @@ export const VideoDetailComponent: FC<{ editVideoData: any, setEditVideoData: Di
   };
 
   const handleInputConfirm = () => {
+    if (!inputValue) {
+      setInputVisible(false);
+      return
+    };
     setEditVideoData((old: any) => {
-      old.tags.push(inputValue)
+      const tags = [...(old?.tags || [])]
+      tags.push(inputValue)
       return {
         ...old,
+        tags,
       }
     })
     setInputVisible(false);
@@ -59,7 +65,7 @@ export const VideoDetailComponent: FC<{ editVideoData: any, setEditVideoData: Di
       <div
         className="w-96 m-5"
       >
-        <div className="title mb-2">업로드 제목</div>
+        <div className="title mb-2">영상 제목</div>
         <Input
           className="w-full"
           onChange={handleInputValue}
@@ -70,7 +76,7 @@ export const VideoDetailComponent: FC<{ editVideoData: any, setEditVideoData: Di
       <div
         className="w-96 m-5"
       >
-        <div className="title mb-2">업로드 내용</div>
+        <div className="title mb-2">영상 설명</div>
         <Input
           className="w-full"
           onChange={handleInputValue}

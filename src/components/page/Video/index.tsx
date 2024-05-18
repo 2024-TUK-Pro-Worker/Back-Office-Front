@@ -55,7 +55,7 @@ export const VideoList = () => {
       key: 'gptTitle',
     },
     {
-      title: '업로드 제목',
+      title: '영상 설명',
       dataIndex: 'title',
       key: 'title',
       render: (text: string | null) => {
