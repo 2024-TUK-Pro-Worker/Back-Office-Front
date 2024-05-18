@@ -1,33 +1,76 @@
-import {FC, useCallback, useEffect, useState} from "react";
+import {FC, ReactNode, useEffect, useState} from "react";
 import {
+  getPrompt,
   getScheduler,
   getSchedulerDelete,
   getSchedulerStart,
   getSchedulerStatus,
-  getSchedulerUpdate
+  getSchedulerUpdate,
+  patchPrompt
 } from "@/client/account";
-import cronstrue from 'cronstrue';
-import {Button, Card, Col, Divider, Input, notification, Result, Row, Statistic} from "antd";
-import Cron from "react-js-cron";
-import styled from "styled-components";
+import {Button, Card, Col, Divider, notification, Result, Row, TreeSelect, Typography, Input} from "antd";
 import {ResultStatusType} from "antd/es/result";
+import DefaultModal from "@/components/shared/ui/default-modal";
 
-const CronSettingContainer = styled.div`
-  .react-js-cron {
-    display: flex;
-    align-items: flex-start;
-    flex-wrap: wrap;
-    gap: 6px;
-  }
+const {TextArea} = Input;
+const {Text} = Typography;
 
-  .react-js-cron > div, .react-js-cron-field {
-    display: flex;
-    align-items: center;
-    gap: 6px;
-  }
-`
+const cronSelectData = [{
+  title: '분 마다 반복',
+  value: 'minutes',
+  selectable: false,
+  children: [
+    {
+      title: '20분 마다 반복',
+      value: '*/20 * * * *',
+    },
+    {
+      title: '30분 마다 반복',
+      value: '*/30 * * * *',
+    },
+    {
+      title: '40분 마다 반복',
+      value: '*/40 * * * *',
+    },
+    {
+      title: '50분 마다 반복',
+      value: '*/50 * * * *',
+    }
+  ]
+},
+  {
+    title: '시간 마다 반복',
+    value: 'hours',
+    selectable: false,
+    children: [
+      {
+        title: '1시간 마다 반복',
+        value: '0 */1 * * *',
+      },
+      {
+        title: '2시간 마다 반복',
+        value: '0 */2 * * *',
+      },
+      {
+        title: '3시간 마다 반복',
+        value: '0 */3 * * *',
+      },
+      {
+        title: '4시간 마다 반복',
+        value: '0 */4 * * *',
+      },
+      {
+        title: '5시간 마다 반복',
+        value: '0 */5 * * *',
+      },
+      {
+        title: '6시간 마다 반복',
+        value: '0 */6 * * *',
+      }
+    ]
+  }]
 export const AccountScheduler: FC<any> = () => {
-  const [expression, setExpression] = useState({input: '* * * * *', cron: '* * * * *'});
+  const [expression, setExpression] = useState('');
   const [cronStatus, setCronStatus] = useState<{
     status: ResultStatusType;
     title: string;
@@ -36,9 +79,13 @@ export const AccountScheduler: FC<any> = () => {
     status: 'warning',
     title: '스케줄러 상태를 확인하지 못했어요.',
   })
+  const [modalContent, setModalContent] = useState<{ title: string; content: ReactNode }>({title: '', content: ''});
+  const [isModalOpen, setModalOpen] = useState(false);
+  const [isDeleteLoading, setDeleteLoading] = useState(false);
+  const [prompt, setPrompt] = useState('');
   const [api, contextHolder] = notification.useNotification();
 
-  const openErrorNotification = ( message: string, description?: string) => {
+  const openErrorNotification = (message: string, description?: string) => {
     api.error({
       message,
       description,
@@ -47,7 +94,7 @@ export const AccountScheduler: FC<any> = () => {
     });
   };
 
-  const openSuccessNotification = ( message: string, description?: string) => {
+  const openSuccessNotification = (message: string, description?: string) => {
     api.success({
       message,
       description,
@@ -58,10 +105,7 @@ export const AccountScheduler: FC<any> = () => {
   const getSchedulerExpression = async () => {
     const response = await getScheduler();
     console.log(response?.data?.cronSchedule);
-    setExpression({
-      input: response?.data?.cronSchedule || '* * * * *',
-      cron: response?.data?.cronSchedule || '* * * * *'
-    })
+    setExpression(response?.data?.cronSchedule || '')
   }
 
   const getSchedulerNowStatus = async () => {
@@ -76,23 +120,35 @@ export const AccountScheduler: FC<any> = () => {
       }
     }
   }
+  const cronDeleteOk = async () => {
+    setDeleteLoading(true)
+    const response = await getSchedulerDelete();
+    if (response?.result === 'success') {
+      openSuccessNotification('스케줄러 삭제에 성공하였습니다.')
+    } else {
+      openErrorNotification('스케줄러 삭제에 실패하였습니다.', '잠시 후 다시 시도 해주십시오.')
+    }
+    setDeleteLoading(false)
+    setModalOpen(false)
+    await getSchedulerExpression()
+    await getSchedulerNowStatus()
+  }
 
   const buttonClickHandle = async () => {
     if (cronStatus.status === 'success') {
       //삭제
-      const response = await getSchedulerDelete();
-      if (response?.result === 'success') {
-        openSuccessNotification('스케줄러 삭제에 성공하였습니다.', '잠시 후 다시 시도 해주십시오.')
-      }else{
-        openErrorNotification('스케줄러 삭제에 실패하였습니다.', '잠시 후 다시 시도 해주십시오.')
-      }
+      setModalOpen(true)
+      setModalContent({
+        title: '정말 삭제 하시겠습니까?',
+        content: (<>삭제하면 <Text type={'danger'}>되돌릴수 없습니다.</Text> 그래도 정말 삭제 하시겠습니까?</>)
+      })
     } else {
       // 추가
-      const response = await getSchedulerUpdate({schedule: expression.cron});
+      const response = await getSchedulerUpdate({schedule: expression});
       if (response?.result === 'success') {
         await getSchedulerStart()
-        openSuccessNotification('스케줄러 설정에 성공하였습니다.', '잠시 후 다시 시도 해주십시오.')
-      }else{
+        openSuccessNotification('스케줄러 설정에 성공하였습니다.')
+      } else {
         openErrorNotification('스케줄러 설정에 실패하였습니다.', '잠시 후 다시 시도 해주십시오.')
       }
     }
@@ -100,45 +156,59 @@ export const AccountScheduler: FC<any> = () => {
     await getSchedulerNowStatus()
   }
 
+  const getPromptContent = async () => {
+    const response = await getPrompt()
+    if (response?.result === 'success') setPrompt(response?.data?.content || '')
+  }
+
+  const savePromptContent = async () => {
+    const response = await patchPrompt({content: prompt});
+    if (response?.result === 'success') {
+      openSuccessNotification('변경에 성공하였습니다.', '프롬프트를 정상적으로 변경하였습니다!')
+      await getPromptContent()
+    } else {
+      openErrorNotification('변경에 실패하였습니다.', '잠시 후 다시 시도 해주십시오.')
+    }
+  }
+
   useEffect(() => {
     getSchedulerExpression()
     getSchedulerNowStatus()
+    getPromptContent()
   }, [])
 
 
   return (
     <div>
       {contextHolder}
+      <DefaultModal
+        handleHide={() => {
+          setModalOpen(false)
+        }}
+        title={modalContent.title}
+        open={isModalOpen}
+        confirmLoading={isDeleteLoading}
+        onOk={cronDeleteOk}>
+        {modalContent.content}
+      </DefaultModal>
       <Divider orientation="center">스케줄러</Divider>
       <Row>
         <Col span={8} offset={2}>
           <Card title={'스케줄러 설정'} style={{minWidth: 360}}>
-            <Input value={expression.input} onChange={(e) => {
-              setExpression({
-                ...expression,
-                input: e.target.value,
-              })
-            }}
-                   onBlur={(e) => {
-                     setExpression({
-                       cron: e.target.value,
-                       input: e.target.value,
-                     })
-                   }}
-            />
-            <CronSettingContainer className={'mt-3'}>
-              <Cron value={expression.cron || '* * * * *'} setValue={(exp: string) => {
-                setExpression({
-                  input: exp,
-                  cron: exp
-                })
+            <TreeSelect
+              className={'mr-2'}
+              style={{minWidth: 300, width: 300}}
+              value={expression}
+              treeData={cronSelectData}
+              placeholder={'사용할 스케줄을 선택 해주세요.'}
+              onChange={(e) => {
+                setExpression(e);
               }}/>
-            </CronSettingContainer>
-            <Statistic className={'mt-3'} title="설정 값" value={cronstrue.toString(expression.cron)}/>
             <Button
-              className={'mt-2'}
+              className={'float-end mt-3'}
               htmlType={'button'}
               type={'primary'}
+              disabled={cronStatus.status !== 'success' && !expression}
               onClick={buttonClickHandle}
               danger={cronStatus.status === 'success'}>{cronStatus.status === 'success' ? '삭제하기' : '설정하기'}</Button>
           </Card>
@@ -149,6 +219,25 @@ export const AccountScheduler: FC<any> = () => {
               status={cronStatus.status}
               title={cronStatus.title}
               subTitle={cronStatus.subTitle}/>
+          </Card>
+        </Col>
+      </Row>
+      <Divider orientation="center">프롬프트</Divider>
+      <Row>
+        <Col span={18} offset={2} style={{minWidth: 750}}>
+          <Card title={'프롬프트 관리'}>
+            <TextArea
+              value={prompt}
+              style={{height: 200, resize: 'none'}}
+              onChange={(e) => {
+                setPrompt(e.target.value);
+              }}
+            />
+            <Button
+              className={'float-end mt-3'}
+              type={"primary"}
+              onClick={savePromptContent}
+            >저장하기</Button>
           </Card>
         </Col>
       </Row>

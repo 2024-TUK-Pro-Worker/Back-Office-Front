@@ -53,3 +53,24 @@ export const getSchedulerDelete = async () => {
     return;
   }
 };
+
+export const getPrompt = async () => {
+  try {
+    const result = await axiosApi.get("api/account/prompt");
+    console.log(result?.data)
+    return result?.data
+  } catch (e) {
+    console.log(e)
+    return;
+  }
+}
+export const patchPrompt = async (data:{content: string}) => {
+  try {
+    const result = await axiosApi.patch("api/account/prompt/update",data);
+    console.log(result?.data)
+    return result?.data
+  } catch (e) {
+    console.log(e)
+    return;
+  }
+}

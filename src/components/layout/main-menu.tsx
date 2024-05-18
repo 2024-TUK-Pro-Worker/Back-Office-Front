@@ -30,26 +30,19 @@ const mainMenuData: IMenu[] = [
     icon: <User className="w-5 h-5" />,
     submenu: [
       {
-        id: "accountScheduler",
-        name: "스켸줄러 설정",
+        id: "accountManagement",
+        name: "시스템 설정",
         link: {
-          path: "/account/scheduler",
+          path: "/account",
         },
       },
       {
-        id: "accountSchedulerManagement",
-        name: "스케줄러 관리",
+        id: "accountBackground",
+        name: "배경음악 관리",
         link: {
-          path: "/account/scheduler/management",
+          path: "/account/bgm",
         },
-      },
-      {
-        id: "accountPrompt",
-        name: "프롬프트 설정",
-        link: {
-          path: "/account/prompt",
-        },
-      },
+      }
     ],
   },
 ];

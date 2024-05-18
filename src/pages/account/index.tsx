@@ -4,10 +4,10 @@ import PageDescription from "@/components/module/PageDescription";
 import {useAuth} from "@/lib/auth/auth-provider";
 
 const pageHeader: IPageHeader = {
-  title: "스케줄러 설정",
+  title: "시스템 설정",
 };
 
-const SchedulaPage: IDefaultLayoutPage = () => {
+const AccountPage: IDefaultLayoutPage = () => {
   const { userInfo } = useAuth();
   return (
     <>
@@ -17,7 +17,7 @@ const SchedulaPage: IDefaultLayoutPage = () => {
   );
 };
 
-SchedulaPage.getLayout = getDefaultLayout;
-SchedulaPage.pageHeader = pageHeader;
+AccountPage.getLayout = getDefaultLayout;
+AccountPage.pageHeader = pageHeader;
 
-export default SchedulaPage;
+export default AccountPage;
