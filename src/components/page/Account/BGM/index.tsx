@@ -36,7 +36,11 @@ export const BGM: FC<any> = () => {
     accept: '.mp3',
     action: `${process.env.NEXT_PUBLIC_API_ENDPOINT}/api/account/bgm/insert`,
     beforeUpload: file => {
-      setFileList(fileList.concat(file));
+      console.log(file,fileList)
+      setFileList((old)=>{
+        old.push(file)
+        return old
+      });
       return false;
     }
   };
@@ -106,7 +110,7 @@ export const BGM: FC<any> = () => {
         </p>
         <Button
           className={'mt-2'}
-          disabled={!fileList.length}
+          disabled={fileList.length === 0}
           loading={isUploadLoading}
           iconPosition={'end'}
           onClick={async (e) => {
