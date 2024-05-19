@@ -193,11 +193,11 @@ export const AccountScheduler: FC<any> = () => {
       </DefaultModal>
       <Divider orientation="center">스케줄러</Divider>
       <Row>
-        <Col span={8} offset={2}>
-          <Card title={'스케줄러 설정'} style={{minWidth: 360}}>
+        <Col span={8} offset={2} style={{minWidth: 360, maxWidth: 360, width: 360}}>
+          <Card title={'스케줄러 설정'}>
             <TreeSelect
               className={'mr-2'}
-              style={{minWidth: 300, width: 300}}
+              style={{width: '100%'}}
               value={expression}
               treeData={cronSelectData}
               placeholder={'사용할 스케줄을 선택 해주세요.'}
@@ -224,7 +224,7 @@ export const AccountScheduler: FC<any> = () => {
       </Row>
       <Divider orientation="center">프롬프트</Divider>
       <Row>
-        <Col span={18} offset={2} style={{minWidth: 750}}>
+        <Col span={19} offset={2} style={{minWidth: 800}}>
           <Card title={'프롬프트 관리'}>
             <TextArea
               value={prompt}
