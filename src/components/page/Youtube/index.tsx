@@ -89,6 +89,7 @@ export const YoutubeUpload = () => {
       await uploadYoutube({videoId: selectUploadVideo});
       setUpdateLoading(false)
       setSelectUploadVideo(undefined)
+      setIsModalOpen(false)
       openNotification('영상 업로드가 완료되었습니다!')
       await getVideoListData()
     } catch (e) {
