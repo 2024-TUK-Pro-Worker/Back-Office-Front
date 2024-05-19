@@ -81,7 +81,7 @@ export const VideoDetailComponent: FC<{ editVideoData: any, setEditVideoData: Di
 
   const AudioComponent = useCallback(() => {
     return (
-      <audio controls={true} className={'mt-4'}>
+      <audio controls={true} controlsList="nodownload" className={'mt-4'}>
         <source src={`${process.env.NEXT_PUBLIC_API_ENDPOINT}/api/account/bgm/preview/${editVideoData.bgmName.replace('.mp3','')}`}
                 type={'audio/mpeg'}/>
       </audio>

@@ -17,7 +17,7 @@ const columns = [{
     key: 'preview',
     render: (text: string | null) => {
       return (
-        <audio controls={true}>
+        <audio controls={true} controlsList="nodownload">
           <source src={`${process.env.NEXT_PUBLIC_API_ENDPOINT}/api/account/bgm/preview/${text}`} type={'audio/mpeg'}/>
         </audio>
       )

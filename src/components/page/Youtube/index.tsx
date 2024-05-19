@@ -115,7 +115,7 @@ export const YoutubeUpload = () => {
     return (
       <>
         <div className={'mt-3 mb-2 flex'}><FileVideo className={'mr-1'}/>영상 미리보기</div>
-        <video controls>
+        <video controls controlsList="nodownload">
           <source src={`${process.env.NEXT_PUBLIC_API_ENDPOINT}/api/video/preview/${selectUploadVideo}`}
                   type={'video/mp4'}/>
         </video>
