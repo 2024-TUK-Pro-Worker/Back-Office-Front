@@ -124,6 +124,10 @@ export const VideoDetailComponent: FC<{ editVideoData: any, setEditVideoData: Di
       >
         <div className="title mb-2">영상 태그</div>
         {editVideoData.tags?.map((tag: string, i: number) => {
+          if (!tag) {
+            return;
+          }
+
           return (
             <Tag key={i} closable onClose={() => {
               console.log(tag, i)
