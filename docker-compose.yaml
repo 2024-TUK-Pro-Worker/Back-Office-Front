@@ -1,9 +1,9 @@
 version: "3.2"
 services:
-  frontend:
+  backoffice-front:
     restart: always
     command : yarn start
-    container_name: aishortsmaker-front
+    container_name: aishortsmaker-backoffice-front
     build:
       context: .
       dockerfile: Dockerfile
