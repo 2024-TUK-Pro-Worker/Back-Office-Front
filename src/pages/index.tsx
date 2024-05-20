@@ -6,7 +6,7 @@ import PageDescription from "@/components/module/PageDescription";
 import {Dashboard} from "@/components/page/index/Dashboard";
 
 const pageHeader: IPageHeader = {
-  title: "Welcome",
+  title: "대시보드",
 };
 
 const IndexPage: IDefaultLayoutPage = () => {

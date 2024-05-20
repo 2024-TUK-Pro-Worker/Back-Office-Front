@@ -28,7 +28,6 @@ export const Dashboard: FC<any> = () => {
       return dayjs(video.uploadAt).format('YYYY-MM-DD') === formatValue
     }) || []
     const creatList = createDateFilter.map((video: any) => {
-      console.log(dayjs(video.createdAt), video.createdAt)
       return {
         type: 'create',
         color: 'green',

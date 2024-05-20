@@ -1,16 +1,14 @@
 import { Divider } from "antd";
-import { Home, Monitor, User, Video, Youtube } from "lucide-react";
+import { Home, Monitor, User, Video, Youtube, LayoutDashboard } from "lucide-react";
 import React from "react";
 import Menu, { IMenu } from "./nav";
 
 const mainMenuData: IMenu[] = [
   {
-    id: "home",
-    name: "홈",
-    icon: <Home className="w-5 h-5" />,
-    link: {
-      path: "/",
-    },
+    id: "dashboard",
+    name: "대시보드",
+    icon: <LayoutDashboard className="w-5 h-5" />,
+    link: { path: "/" },
   },
   {
     id: "video",
