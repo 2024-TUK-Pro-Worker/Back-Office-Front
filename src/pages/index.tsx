@@ -3,6 +3,7 @@ import CalendarSample from "@/components/page/index/calendar-sample";
 import { useAuth } from "@/lib/auth/auth-provider";
 import { Alert, Divider, Skeleton } from "antd";
 import PageDescription from "@/components/module/PageDescription";
+import {Dashboard} from "@/components/page/index/Dashboard";
 
 const pageHeader: IPageHeader = {
   title: "Welcome",
@@ -13,17 +14,9 @@ const IndexPage: IDefaultLayoutPage = () => {
 
   return (
     <>
-      <PageDescription>👋 {userInfo?.name || "관리자"}님 안녕하세요!</PageDescription>
+      <PageDescription>👋 {userInfo?.name || "관리자"}님 안녕하세요! 생성된 영상들을 요약 해봤어요!</PageDescription>
 
-      <div className="my-5">
-        <Alert message="대시보드 API 호출 중 오류가 발생했습니다." type="warning" />
-      </div>
-
-      <Divider />
-
-      <h3 className="title">달력</h3>
-
-      <CalendarSample />
+      <Dashboard/>
     </>
   );
 };
