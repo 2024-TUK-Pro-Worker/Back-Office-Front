@@ -46,7 +46,6 @@ export const VideoDetailComponent: FC<{ editVideoData: any, setEditVideoData: Di
       setInputVisible(false);
       return
     }
-    ;
     setEditVideoData((old: any) => {
       const tags = [...(old?.tags || [])]
       tags.push(inputValue)
@@ -58,6 +57,16 @@ export const VideoDetailComponent: FC<{ editVideoData: any, setEditVideoData: Di
     setInputVisible(false);
     setInputValue('');
   };
+
+  const handleTagRemove = (i: number) => {
+    setEditVideoData((old: any) => {
+      const tags = [...(old?.tags || [])]
+      tags.splice(i, 1)
+      return {
+        ...old,
+      }
+    })
+  }
 
   const handleInputValue = (e: ChangeEvent<HTMLInputElement>) => {
     setEditVideoData({...editVideoData, [e.target.name]: e.target.value})
@@ -90,13 +99,22 @@ export const VideoDetailComponent: FC<{ editVideoData: any, setEditVideoData: Di
     )
   }, [editVideoData.bgmName])
 
+  const VideoPreview = useCallback(()=>{
+    return (
+      <video controls controlsList="nodownload">
+        <source src={`${process.env.NEXT_PUBLIC_API_ENDPOINT}/api/video/preview/${editVideoData.id}`}
+                type={'video/mp4'}/>
+      </video>
+    )
+  }, [editVideoData.id])
+
   useEffect(() => {
     bgmList()
   }, [])
 
   return (
     <>
-      <div className={'flex flex-row flex-wrap gap-3'}>
+      <div className={'flex flex-col flex-wrap gap-3'}>
         <div className="title">영상 제목</div>
         <Input
           className="w-full"
@@ -114,33 +132,36 @@ export const VideoDetailComponent: FC<{ editVideoData: any, setEditVideoData: Di
           placeholder={'영상 설명을 입력하세요.'}
         />
         <div className="title">영상 태그</div>
-        {editVideoData.tags?.map((tag: string, i: number) => {
-          if (!tag) {
-            return;
-          }
+        <div className={'flex flex-wrap gap-2'}>
+          {editVideoData.tags?.map((tag: string, i: number) => {
+            if (!tag) {
+              return;
+            }
 
-          return (
-            <Tag key={i} closable onClose={() => {
-              console.log(tag, i)
-            }}>{tag}</Tag>
-          )
-        })}
-        {inputVisible ? (
-          <Input
-            ref={inputRef}
-            type="text"
-            size="small"
-            style={{width: 78}}
-            value={inputValue}
-            onChange={handleInputChange}
-            onBlur={handleInputConfirm}
-            onPressEnter={handleInputConfirm}
-          />
-        ) : (
-          <Tag onClick={showInput} style={tagPlusStyle}>
-            <PlusOutlined/> New Tag
-          </Tag>
-        )}
+            return (
+              <Tag key={i} closable onClose={() => {
+                console.log(tag, i)
+                handleTagRemove(i)
+              }}>{tag}</Tag>
+            )
+          })}
+          {inputVisible ? (
+            <Input
+              ref={inputRef}
+              type="text"
+              size="small"
+              style={{width: 78}}
+              value={inputValue}
+              onChange={handleInputChange}
+              onBlur={handleInputConfirm}
+              onPressEnter={handleInputConfirm}
+            />
+          ) : (
+            <Tag onClick={showInput} style={tagPlusStyle}>
+              <PlusOutlined/> New Tag
+            </Tag>
+          )}
+        </div>
         <div className="title mt-2">영상 배경음악 설정</div>
         {editVideoData.appendBgm ?
           (<Progress
@@ -164,10 +185,7 @@ export const VideoDetailComponent: FC<{ editVideoData: any, setEditVideoData: Di
             )}
           </>)}
         <Divider>미리보기</Divider>
-        <video controls controlsList="nodownload">
-          <source src={`${process.env.NEXT_PUBLIC_API_ENDPOINT}/api/video/preview/${editVideoData.id}`}
-                  type={'video/mp4'}/>
-        </video>
+        <VideoPreview/>
       </div>
     </>
 

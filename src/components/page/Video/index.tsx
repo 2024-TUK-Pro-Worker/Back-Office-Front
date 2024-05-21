@@ -1,7 +1,7 @@
 import {getVideoList, putVideoDetail, setVideoBgm} from "@/client/video";
 import {useEffect, useState} from "react";
 import DefaultTable from "@/components/shared/ui/default-table";
-import {Alert, Drawer, notification, Skeleton} from "antd";
+import {Alert, Button, Drawer, notification, Skeleton, Space} from "antd";
 import dayjs from "dayjs";
 import DefaultModal from "@/components/shared/ui/default-modal";
 import {VideoDetailComponent} from "@/components/page/Video/detail";
@@ -141,14 +141,18 @@ export const VideoList = () => {
         await setVideoBgm({videoId: editVideoData.id, bgmFileName: editVideoData.bgmName})
       }
       setUpdateLoading(false)
-      setIsDrawerOpen(false)
+      onClose()
       openNotification('업데이트 완료되었습니다!', `${editVideoData.gptTitle} 영상이 업데이트 되었습니다`)
       await getVideoListData()
     } catch (e: any) {
       errorHandle(e)
       setUpdateLoading(false)
-      setIsDrawerOpen(false)
+      onClose()
     }
+  }
+
+  const onClose = () => {
+    setIsDrawerOpen(false)
   }
 
   useEffect(() => {
@@ -187,11 +191,23 @@ export const VideoList = () => {
         title={`${editVideoData.gptTitle} 상세 수정`}
         placement={'right'}
         closable={false}
-        onClose={() => {
-          setIsDrawerOpen(false)
-        }}
+        onClose={onClose}
         open={isDrawerOpen}
         key={'right'}
+        width={560}
+        afterOpenChange={(open: boolean) => {
+          if (!open) {
+            setEditVideoData({})
+          }
+        }}
+        extra={
+          <Space>
+            <Button onClick={onClose}>Cancel</Button>
+            <Button onClick={UpdateDetail} type="primary" loading={updateLoading}>
+              Save
+            </Button>
+          </Space>
+        }
       >
         <VideoDetailComponent editVideoData={editVideoData} setEditVideoData={setEditVideoData}/>
       </Drawer>
