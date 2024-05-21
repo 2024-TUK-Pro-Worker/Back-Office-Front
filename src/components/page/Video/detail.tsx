@@ -64,6 +64,7 @@ export const VideoDetailComponent: FC<{ editVideoData: any, setEditVideoData: Di
       tags.splice(i, 1)
       return {
         ...old,
+        tags
       }
     })
   }

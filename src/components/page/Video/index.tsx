@@ -33,13 +33,23 @@ export const VideoList = () => {
     try {
       setIsLoading(true)
       const response = await getVideoList();
-      setDataSource(response?.data?.map((data: any, index: number) => {
-        return {
-          key: index,
-          editable: !data.uploadId,
-          ...data
-        }
-      }))
+      setDataSource(response?.data
+        ?.sort((a: any, b: any) => {
+          if (a.createdAt < b.createdAt) return 1;
+          if (a.createdAt > b.createdAt) return -1;
+          return 0;
+        })?.sort((a: any, b: any) => {
+          if (a.uploadId && !b.uploadId) return 1;
+          if (!a.uploadId && b.uploadId) return -1;
+          return 0;
+        })
+        .map((data: any, index: number) => {
+          return {
+            key: index,
+            editable: !data.uploadId,
+            ...data
+          }
+        }))
       setIsLoading(false)
     } catch (e) {
       errorHandle(e)
