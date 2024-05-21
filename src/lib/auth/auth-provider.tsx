@@ -39,7 +39,7 @@ const AuthProvider = ({children}: { children: ReactNode }) => {
     if (isLoading && router.pathname === '/login') {
       setLoading(false);
     }
-    if (!isLoading && !decodedToken && router.pathname !== '/login') {
+    if (!isLoading && (!decodedToken || isExpired) && router.pathname !== '/login') {
       if (isExpired || !decodedToken) {
         const serviceDomain = (process.env.NEXT_PUBLIC_SERVICE_DOMAIN !== 'localhost') ? `.${process.env.NEXT_PUBLIC_SERVICE_DOMAIN}` : 'localhost';
         removeCookie('authorization', {path: '/', domain: serviceDomain});  // 쿠키 삭제
