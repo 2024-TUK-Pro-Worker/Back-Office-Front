@@ -1,7 +1,7 @@
 import {getVideoList, putVideoDetail, setVideoBgm} from "@/client/video";
 import {useEffect, useState} from "react";
 import DefaultTable from "@/components/shared/ui/default-table";
-import {Alert, notification, Skeleton} from "antd";
+import {Alert, Drawer, notification, Skeleton} from "antd";
 import dayjs from "dayjs";
 import DefaultModal from "@/components/shared/ui/default-modal";
 import {VideoDetailComponent} from "@/components/page/Video/detail";
@@ -9,7 +9,7 @@ import {VideoDetailComponent} from "@/components/page/Video/detail";
 export const VideoList = () => {
   const [dataSource, setDataSource] = useState<any[]>([]);
   const [isLoading, setIsLoading] = useState(true);
-  const [isModalOpen, setIsModalOpen] = useState(false);
+  const [isDrawerOpen, setIsDrawerOpen] = useState(false);
   const [editVideoData, setEditVideoData] = useState<any>({})
   const [updateLoading, setUpdateLoading] = useState(false);
   const [errorMessage, setErrorMessage] = useState<string>('')
@@ -141,13 +141,13 @@ export const VideoList = () => {
         await setVideoBgm({videoId: editVideoData.id, bgmFileName: editVideoData.bgmName})
       }
       setUpdateLoading(false)
-      setIsModalOpen(false)
+      setIsDrawerOpen(false)
       openNotification('업데이트 완료되었습니다!', `${editVideoData.gptTitle} 영상이 업데이트 되었습니다`)
       await getVideoListData()
     } catch (e: any) {
       errorHandle(e)
       setUpdateLoading(false)
-      setIsModalOpen(false)
+      setIsDrawerOpen(false)
     }
   }
 
@@ -158,16 +158,6 @@ export const VideoList = () => {
   return (
     <>
       {contextHolder}
-      <DefaultModal
-        handleHide={() => {
-          setIsModalOpen(false)
-        }}
-        title={`${editVideoData.gptTitle} 상세 수정`}
-        open={isModalOpen}
-        confirmLoading={updateLoading}
-        onOk={UpdateDetail}>
-        <VideoDetailComponent editVideoData={editVideoData} setEditVideoData={setEditVideoData}/>
-      </DefaultModal>
       {isError && <Alert
         className={'mb-5'}
         message={errorMessage}
@@ -187,11 +177,24 @@ export const VideoList = () => {
             style: {cursor: "pointer"},
             onClick: () => {
               if (!record.editable) return;
-              setIsModalOpen(true);
+              setIsDrawerOpen(true);
               setEditVideoData(record);
             }
           }
         }}/>}
+
+      <Drawer
+        title={`${editVideoData.gptTitle} 상세 수정`}
+        placement={'right'}
+        closable={false}
+        onClose={() => {
+          setIsDrawerOpen(false)
+        }}
+        open={isDrawerOpen}
+        key={'right'}
+      >
+        <VideoDetailComponent editVideoData={editVideoData} setEditVideoData={setEditVideoData}/>
+      </Drawer>
     </>
   )
 }

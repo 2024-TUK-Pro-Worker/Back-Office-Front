@@ -1,8 +1,9 @@
 import {ChangeEvent, CSSProperties, Dispatch, FC, useCallback, useEffect, useRef, useState} from "react";
 import styled from "styled-components";
-import {Input, InputRef, Progress, Select, Tag} from "antd";
+import {Divider, Input, InputRef, Progress, Select, Tag} from "antd";
 import {PlusOutlined} from "@ant-design/icons";
 import {getBgmListApi} from "@/client/bgm";
+import {Divide} from "lucide-react";
 
 const Container = styled.div`
   height: 500px;
@@ -82,8 +83,9 @@ export const VideoDetailComponent: FC<{ editVideoData: any, setEditVideoData: Di
   const AudioComponent = useCallback(() => {
     return (
       <audio controls={true} controlsList="nodownload" className={'mt-4'}>
-        <source src={`${process.env.NEXT_PUBLIC_API_ENDPOINT}/api/account/bgm/preview/${editVideoData.bgmName.replace('.mp3','')}`}
-                type={'audio/mpeg'}/>
+        <source
+          src={`${process.env.NEXT_PUBLIC_API_ENDPOINT}/api/account/bgm/preview/${editVideoData.bgmName.replace('.mp3', '')}`}
+          type={'audio/mpeg'}/>
       </audio>
     )
   }, [editVideoData.bgmName])
@@ -93,11 +95,9 @@ export const VideoDetailComponent: FC<{ editVideoData: any, setEditVideoData: Di
   }, [])
 
   return (
-    <Container className={'shadow-sm border-gray-200 border rounded-lg w-full'}>
-      <div
-        className="w-96 m-5"
-      >
-        <div className="title mb-2">영상 제목</div>
+    <>
+      <div className={'flex flex-row flex-wrap gap-3'}>
+        <div className="title">영상 제목</div>
         <Input
           className="w-full"
           onChange={handleInputValue}
@@ -105,11 +105,7 @@ export const VideoDetailComponent: FC<{ editVideoData: any, setEditVideoData: Di
           value={editVideoData.title}
           placeholder={'영상 제목을 입력하세요.'}
         />
-      </div>
-      <div
-        className="w-96 m-5"
-      >
-        <div className="title mb-2">영상 설명</div>
+        <div className="title">영상 설명</div>
         <Input
           className="w-full"
           onChange={handleInputValue}
@@ -117,12 +113,7 @@ export const VideoDetailComponent: FC<{ editVideoData: any, setEditVideoData: Di
           value={editVideoData.content}
           placeholder={'영상 설명을 입력하세요.'}
         />
-      </div>
-
-      <div
-        className="w-96 m-5"
-      >
-        <div className="title mb-2">영상 태그</div>
+        <div className="title">영상 태그</div>
         {editVideoData.tags?.map((tag: string, i: number) => {
           if (!tag) {
             return;
@@ -150,7 +141,7 @@ export const VideoDetailComponent: FC<{ editVideoData: any, setEditVideoData: Di
             <PlusOutlined/> New Tag
           </Tag>
         )}
-        <div className="title mb-2 mt-2">영상 배경음악 설정</div>
+        <div className="title mt-2">영상 배경음악 설정</div>
         {editVideoData.appendBgm ?
           (<Progress
             type="circle"
@@ -172,8 +163,13 @@ export const VideoDetailComponent: FC<{ editVideoData: any, setEditVideoData: Di
               <AudioComponent/>
             )}
           </>)}
+        <Divider>미리보기</Divider>
+        <video controls controlsList="nodownload">
+          <source src={`${process.env.NEXT_PUBLIC_API_ENDPOINT}/api/video/preview/${editVideoData.id}`}
+                  type={'video/mp4'}/>
+        </video>
       </div>
+    </>
 
-    </Container>
   )
 }
