@@ -71,13 +71,13 @@ const MainMenu = () => {
 
         <Menu data={mainMenuData} />
       </>
-      <>
-        <Divider orientation="left" plain>
-          개발
-        </Divider>
+      {/*<>*/}
+      {/*  <Divider orientation="left" plain>*/}
+      {/*    개발*/}
+      {/*  </Divider>*/}
 
-        <Menu data={devMenuData} />
-      </>
+      {/*  <Menu data={devMenuData} />*/}
+      {/*</>*/}
     </>
   );
 };

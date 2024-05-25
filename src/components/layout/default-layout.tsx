@@ -10,6 +10,8 @@ import Profile from "./profile";
 import Sidebar from "./sidebar";
 import {useCookies} from "react-cookie";
 import {useJwt} from "react-jwt";
+import {notification} from "antd";
+import {useAuth} from "@/lib/auth/auth-provider";
 
 export interface IPageHeader {
   title: string;
@@ -27,12 +29,10 @@ interface IDefaultLayoutProps {
 const DefaultLayout = ({ Page, ...props }: IDefaultLayoutProps) => {
   const [isShowSidebar, setIsShowSidebar] = useState(true);
   const [isShowPopupMenu, setIsShowPopupMenu] = useState(false);
+  const [api, contextHolder] = notification.useNotification();
 
   const router = useRouter();
-
-  const [cookies] = useCookies(['authorization']);
-
-  const {decodedToken, isExpired} = useJwt<{name: string, email: string}>(cookies.authorization);
+  const {userInfo} = useAuth();
 
   const showSidebar = useCallback(() => {
     setIsShowSidebar(true);
@@ -50,6 +50,18 @@ const DefaultLayout = ({ Page, ...props }: IDefaultLayoutProps) => {
     }
     setIsShowPopupMenu(val);
   }, []);
+
+  const openNotification = () => {
+    api.info({
+      key: 'updatable',
+      message: '안내',
+      description:
+        '해당 계정은 트라이얼 계정입니다. 서비스 이용에 제한적입니다.',
+      placement: 'topRight',
+      closable: true,
+      duration: null
+    });
+  };
 
   useEffect(() => {
     setActive(false);
@@ -70,8 +82,13 @@ const DefaultLayout = ({ Page, ...props }: IDefaultLayoutProps) => {
   //   }
   // }, [router, decodedToken, isExpired]);
 
+  useEffect(()=>{
+    if (userInfo?.trialUser) openNotification()
+  },[userInfo?.trialUser])
   return (
     <div>
+      {contextHolder}
+
       <Sidebar isShowSidebar={isShowSidebar} hideSidebar={hideSidebar} />
 
       {/* mobile navigation */}

@@ -37,7 +37,6 @@ export const BGM: FC<any> = () => {
     action: `${process.env.NEXT_PUBLIC_API_ENDPOINT}/api/account/bgm/insert`,
     fileList,
     beforeUpload: file => {
-      console.log(file,fileList)
       setFileList((old)=>{
         old.push(file)
         return old
@@ -67,8 +66,8 @@ export const BGM: FC<any> = () => {
   const bgmList = async () => {
     setIsLoading(true)
     const response = await getBgmListApi();
-    if (response.result === 'success') {
-      const data = response.data?.bgmList?.map((title: string) => {
+    if (response?.result === 'success') {
+      const data = response?.data?.bgmList?.map((title: string) => {
         return {
           title,
           preview: title.replace('.mp3', '')
@@ -84,7 +83,7 @@ export const BGM: FC<any> = () => {
     const formData = new FormData()
       fileList.forEach(file => formData.append('fileList', file))
     const response = await insertBgmListApi(formData)
-    if (response.result === 'success') {
+    if (response?.result === 'success') {
       openSuccessNotification('배경 음악 업로드를 성공 하였습니다!')
       await bgmList()
       setFileList([])

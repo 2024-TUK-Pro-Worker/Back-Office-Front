@@ -7,6 +7,7 @@ import Image from "next/image";
 import DefaultModal from "@/components/shared/ui/default-modal";
 import {FileVideo} from "lucide-react";
 import {deleteYoutube, uploadYoutube} from "@/client/youtube";
+import {useAuth} from "@/lib/auth/auth-provider";
 
 const UploadYoutubeWrapper = styled.div`
   width: 315px;
@@ -43,6 +44,8 @@ export const YoutubeUpload = () => {
   const [selectUploadVideo, setSelectUploadVideo] = useState<number | undefined>(undefined);
   const [api, contextHolder] = notification.useNotification();
 
+  const {userInfo} = useAuth();
+
   const errorHandle = (e: any) => {
     setErrorMessage(e?.message || '알수 없는 에러');
     setIsError(true)
@@ -51,12 +54,12 @@ export const YoutubeUpload = () => {
     try {
       setIsLoading(true)
       const response = await getVideoList();
-      const uploadList = response.data.filter(({uploadId, isDeleted}: {
+      const uploadList = response?.data.filter(({uploadId, isDeleted}: {
         uploadId: string,
         isDeleted: string
       }) => !!uploadId && isDeleted !== 'Y');
       setUploadVideoList(uploadList);
-      const notUploadList = response.data.filter(({uploadId, isDeleted}: {
+      const notUploadList = response?.data.filter(({uploadId, isDeleted}: {
         uploadId: string,
         isDeleted: string
       }) => !uploadId && isDeleted !== 'Y').map((video: any) => {
@@ -82,18 +85,30 @@ export const YoutubeUpload = () => {
       duration: 2
     });
   };
+  const openErrorNotification = (message: string, description?: string) => {
+    api.error({
+      message,
+      description,
+      placement: 'topRight',
+      duration: 2
+    });
+  };
   const uploadYoutubeVideo = async () => {
     try {
       if (!selectUploadVideo) return;
       setUpdateLoading(true)
-      await uploadYoutube({videoId: selectUploadVideo});
+      const response = await uploadYoutube({videoId: selectUploadVideo});
       setUpdateLoading(false)
       setSelectUploadVideo(undefined)
       setIsModalOpen(false)
+      if (response?.result === 'fail') {
+        openErrorNotification('영상 업로드에 실패하였습니다.', '잠시 후 다시 시도해 주십시오.')
+        return;
+      }
       openNotification('영상 업로드가 완료되었습니다!')
       await getVideoListData()
     } catch (e) {
-      errorHandle(e)
+      openErrorNotification('영상 업로드에 실패하였습니다.', '잠시 후 다시 시도해 주십시오.')
       setUpdateLoading(false)
       setSelectUploadVideo(undefined)
     }
@@ -127,9 +142,6 @@ export const YoutubeUpload = () => {
   useEffect(() => {
     getVideoListData()
   }, []);
-  useEffect(() => {
-    console.log(uploadVideoList)
-  }, [uploadVideoList]);
 
   return (
     <>
@@ -186,18 +198,18 @@ export const YoutubeUpload = () => {
             return (
               <Badge.Ribbon
                 key={uploadId}
-                color={'red'}
+                color={userInfo?.trialUser ? 'cyan' : 'red'}
                 text={
-                  <Button
-                    type={'link'}
-                    onClick={async () => {
-                      console.log('id', id);
-                      await deleteYoutubeVideo(id)
-                    }}
-                    style={{color: '#ffffff'}}
-                  >
-                    Delete
-                  </Button>}>
+                  userInfo?.trialUser ? 'Trial' :
+                    <Button
+                      type={'link'}
+                      onClick={async () => {
+                        await deleteYoutubeVideo(id)
+                      }}
+                      style={{color: '#ffffff'}}
+                    >
+                      Delete
+                    </Button>}>
                 <iframe
                   className={'rounded-md'}
                   width="315"

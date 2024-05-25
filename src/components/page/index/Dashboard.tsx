@@ -1,20 +1,28 @@
 import React, {FC, useEffect, useState} from "react";
-import {Badge, Calendar, CalendarProps, Divider, Tooltip} from "antd";
+import {Alert, Badge, Calendar, CalendarProps, Divider, Tooltip} from "antd";
 import dayjs, {Dayjs} from "dayjs";
 import {getVideoList} from "@/client/video";
 import dayjsGenerateConfig from 'rc-picker/lib/generate/dayjs';
 import locale from "antd/es/calendar/locale/ko_KR";
 
 import 'dayjs/locale/ko'
+import {LoadDataError} from "@/components/module/LoadDataError";
 
 const CustomCalendar = Calendar.generateCalendar<Dayjs>(dayjsGenerateConfig);
+
+const ERROR_MESSAGE = '업로드 된 영상을 불러오기 실패했습니다. 잠시 후 다시 시도해 주십시오.'
 export const Dashboard: FC<any> = () => {
   const [videoDataList, setVideoDataList] = useState([])
-
+  const [isError, setIsError] = useState<boolean>(false);
+  const [errorMessage, setErrorMessage] = useState<string>(ERROR_MESSAGE)
   const getVideoListDashboard = async () => {
     const response = await getVideoList();
-    if (response.result === 'success') {
-      setVideoDataList(response.data || [])
+    if (response?.result === 'success') {
+      setVideoDataList(response?.data || [])
+    }else if(response?.result === 'fail'){
+      setErrorMessage(response?.message || ERROR_MESSAGE)
+    }else{
+      setIsError(true)
     }
   }
 
@@ -117,18 +125,14 @@ export const Dashboard: FC<any> = () => {
 
   return (
     <>
-
-      {/*<div className="my-5">*/}
-      {/*  <Alert message="대시보드 API 호출 중 오류가 발생했습니다." type="warning" />*/}
-      {/*</div>*/}
-      {/**/}
+      <LoadDataError showIcon={true} type={'error'} isOpen={isError} message={errorMessage}/>
       <Divider/>
       <ul className="events">
         <li>
           <Badge color={'green'} text={'생성된 영상'}/>
         </li>
         <li>
-          <Badge color={'red'} text={'엽로드 영상'}/>
+          <Badge color={'red'} text={'업로드 영상'}/>
         </li>
       </ul>
       <CustomCalendar

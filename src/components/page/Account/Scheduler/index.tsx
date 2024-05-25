@@ -11,6 +11,7 @@ import {
 import {Button, Card, Col, Divider, notification, Result, Row, TreeSelect, Typography, Input} from "antd";
 import {ResultStatusType} from "antd/es/result";
 import DefaultModal from "@/components/shared/ui/default-modal";
+import {useAuth} from "@/lib/auth/auth-provider";
 
 const {TextArea} = Input;
 const {Text} = Typography;
@@ -83,8 +84,9 @@ export const AccountScheduler: FC<any> = () => {
   const [isModalOpen, setModalOpen] = useState(false);
   const [isDeleteLoading, setDeleteLoading] = useState(false);
   const [prompt, setPrompt] = useState('');
+  const [createLoading, setCreateLoading] = useState(false)
   const [api, contextHolder] = notification.useNotification();
-
+  const {userInfo} = useAuth();
   const openErrorNotification = (message: string, description?: string) => {
     api.error({
       message,
@@ -104,16 +106,15 @@ export const AccountScheduler: FC<any> = () => {
   };
   const getSchedulerExpression = async () => {
     const response = await getScheduler();
-    console.log(response?.data?.cronSchedule);
     setExpression(response?.data?.cronSchedule || '')
   }
 
   const getSchedulerNowStatus = async () => {
     const response = await getSchedulerStatus()
-    if (response.result === 'fail') {
+    if (response?.result === 'fail') {
       setCronStatus({status: 'error', title: '스케줄러가 설정 되어있지 않아요.', subTitle: '스케줄러 설정에서 원하는 시간으로 등록 해보세요!'})
     } else {
-      if (response.scheduleInfo.active) {
+      if (response?.scheduleInfo.active) {
         setCronStatus({status: 'success', title: '스케줄러가 정상 작동하고 있어요.', subTitle: '만들어진 영상을 유튜브에 업로드 해보세요!'})
       } else {
         setCronStatus({status: 'success', title: '스케줄러가 중지 상태에요.', subTitle: '스케줄러를 다시 실행하여, 영상을 생성 해보세요!'})
@@ -135,6 +136,7 @@ export const AccountScheduler: FC<any> = () => {
   }
 
   const buttonClickHandle = async () => {
+    setCreateLoading(true)
     if (cronStatus.status === 'success') {
       //삭제
       setModalOpen(true)
@@ -146,14 +148,20 @@ export const AccountScheduler: FC<any> = () => {
       // 추가
       const response = await getSchedulerUpdate({schedule: expression});
       if (response?.result === 'success') {
-        await getSchedulerStart()
-        openSuccessNotification('스케줄러 설정에 성공하였습니다.')
+        const response = await getSchedulerStart()
+        if (response?.result === 'success'){
+          openSuccessNotification('스케줄러 설정에 성공하였습니다.')
+        }else{
+          openErrorNotification('스케줄러 설정에 실패하였습니다.', '잠시 후 다시 시도 해주십시오.')
+
+        }
       } else {
         openErrorNotification('스케줄러 설정에 실패하였습니다.', '잠시 후 다시 시도 해주십시오.')
       }
     }
     await getSchedulerExpression()
     await getSchedulerNowStatus()
+    setCreateLoading(false)
   }
 
   const getPromptContent = async () => {
@@ -193,34 +201,54 @@ export const AccountScheduler: FC<any> = () => {
       </DefaultModal>
       <Divider orientation="center">스케줄러</Divider>
       <Row>
-        <Col span={8} offset={2} style={{minWidth: 360, maxWidth: 360, width: 360}}>
-          <Card title={'스케줄러 설정'}>
-            <TreeSelect
-              className={'mr-2'}
-              style={{width: '100%'}}
-              value={expression}
-              treeData={cronSelectData}
-              placeholder={'사용할 스케줄을 선택 해주세요.'}
-              onChange={(e) => {
-                setExpression(e);
-              }}/>
-            <Button
-              className={'float-end mt-3'}
-              htmlType={'button'}
-              type={'primary'}
-              disabled={cronStatus.status !== 'success' && !expression}
-              onClick={buttonClickHandle}
-              danger={cronStatus.status === 'success'}>{cronStatus.status === 'success' ? '삭제하기' : '설정하기'}</Button>
-          </Card>
-        </Col>
-        <Col span={8} offset={2} style={{minWidth: 360}}>
-          <Card title={'스케줄러 상태'}>
-            <Result
-              status={cronStatus.status}
-              title={cronStatus.title}
-              subTitle={cronStatus.subTitle}/>
-          </Card>
-        </Col>
+        {userInfo?.trialUser ? (
+          <Col span={19} offset={2} style={{minWidth: 360}}>
+            <Card title={'스케줄러 관리'}>
+              <Result
+                status={'info'}
+                title={'영상 생성 요청하기'}
+                subTitle={'트라이얼 계정은 최초 1회만 요청 할수 있습니다.'} extra={
+                <Button
+                  type={'primary'}
+                  loading={createLoading}
+                  onClick={buttonClickHandle}>생성 하기</Button>
+              }/>
+
+            </Card>
+          </Col>
+        ) : (
+          <>
+            <Col span={8} offset={2} style={{minWidth: 360, maxWidth: 360, width: 360}}>
+              <Card title={'스케줄러 설정'}>
+                <TreeSelect
+                  className={'mr-2'}
+                  style={{width: '100%'}}
+                  value={expression}
+                  treeData={cronSelectData}
+                  placeholder={'사용할 스케줄을 선택 해주세요.'}
+                  onChange={(e) => {
+                    setExpression(e);
+                  }}/>
+                <Button
+                  className={'float-end mt-3'}
+                  htmlType={'button'}
+                  type={'primary'}
+                  disabled={cronStatus.status !== 'success' && !expression}
+                  loading={createLoading}
+                  onClick={buttonClickHandle}
+                  danger={cronStatus.status === 'success'}>{cronStatus.status === 'success' ? '삭제하기' : '설정하기'}</Button>
+              </Card>
+            </Col>
+            <Col span={8} offset={2} style={{minWidth: 360}}>
+              <Card title={'스케줄러 상태'}>
+                <Result
+                  status={cronStatus.status}
+                  title={cronStatus.title}
+                  subTitle={cronStatus.subTitle}/>
+              </Card>
+            </Col>
+          </>
+        )}
       </Row>
       <Divider orientation="center">프롬프트</Divider>
       <Row>

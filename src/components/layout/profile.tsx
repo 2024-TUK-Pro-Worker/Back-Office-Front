@@ -3,18 +3,18 @@ import {Dropdown, MenuProps} from "antd";
 import {ChevronDown} from "lucide-react";
 import React from "react";
 import {useCookies} from "react-cookie";
+import {useRouter} from "next/router";
 
 const Profile = () => {
   const {userInfo} = useAuth();
-  const [, , removeCookie] = useCookies(['authorization']);
+  const router = useRouter();
 
-  const serviceDomain = (process.env.NEXT_PUBLIC_SERVICE_DOMAIN !== 'localhost') ? `.${process.env.NEXT_PUBLIC_SERVICE_DOMAIN}` : 'localhost';
 
   const items: MenuProps["items"] = [
     {
       label: (
-        <a onClick={() => {
-          removeCookie('authorization', {path: '/', domain: serviceDomain});
+        <a href={'/login'} onClick={async () => {
+          await router.push('/logout')
         }} className="link-with-icon">
           로그아웃
         </a>

@@ -19,9 +19,6 @@ export const VideoDetailComponent: FC<{ editVideoData: any, setEditVideoData: Di
   const [isLoading, setIsLoading] = useState(false);
   const [bgmOption, setBgmOption] = useState([]);
   const inputRef = useRef<InputRef>(null);
-  useEffect(() => {
-    console.log(editVideoData)
-  }, [editVideoData]);
 
   const tagPlusStyle: CSSProperties = {
     borderStyle: 'dashed',
@@ -77,8 +74,8 @@ export const VideoDetailComponent: FC<{ editVideoData: any, setEditVideoData: Di
   const bgmList = async () => {
     setIsLoading(true)
     const response = await getBgmListApi();
-    if (response.result === 'success') {
-      const data = response.data?.bgmList?.map((title: string) => {
+    if (response?.result === 'success') {
+      const data = response?.data?.bgmList?.map((title: string) => {
         return {
           value: title,
           label: title,
@@ -141,7 +138,6 @@ export const VideoDetailComponent: FC<{ editVideoData: any, setEditVideoData: Di
 
             return (
               <Tag key={i} closable onClose={() => {
-                console.log(tag, i)
                 handleTagRemove(i)
               }}>{tag}</Tag>
             )

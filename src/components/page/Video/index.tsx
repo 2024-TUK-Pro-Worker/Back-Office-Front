@@ -1,10 +1,11 @@
 import {getVideoList, putVideoDetail, setVideoBgm} from "@/client/video";
-import {useEffect, useState} from "react";
+import React, {useEffect, useState} from "react";
 import DefaultTable from "@/components/shared/ui/default-table";
 import {Alert, Button, Drawer, notification, Skeleton, Space} from "antd";
 import dayjs from "dayjs";
 import DefaultModal from "@/components/shared/ui/default-modal";
 import {VideoDetailComponent} from "@/components/page/Video/detail";
+import {LoadDataError} from "@/components/module/LoadDataError";
 
 export const VideoList = () => {
   const [dataSource, setDataSource] = useState<any[]>([]);
@@ -15,9 +16,18 @@ export const VideoList = () => {
   const [errorMessage, setErrorMessage] = useState<string>('')
   const [isError, setIsError] = useState(false)
   const [api, contextHolder] = notification.useNotification();
+  const [closable, setClosable] = useState(true)
 
   const openNotification = (message: string, description?: string) => {
     api.success({
+      message,
+      description,
+      placement: 'topRight',
+      duration: 2
+    });
+  };
+  const openErrorNotification = (message: string, description?: string) => {
+    api.error({
       message,
       description,
       placement: 'topRight',
@@ -29,10 +39,20 @@ export const VideoList = () => {
     setErrorMessage(e?.message || '알수 없는 에러');
     setIsError(true)
   }
+
+  const errorCloseHandle = () => {
+    setErrorMessage('')
+    setIsError(false);
+  }
   const getVideoListData = async () => {
     try {
       setIsLoading(true)
       const response = await getVideoList();
+      if (response?.result === 'fail') {
+        errorHandle(response)
+        setIsLoading(false)
+        return
+      }
       setDataSource(response?.data
         ?.sort((a: any, b: any) => {
           if (a.createdAt < b.createdAt) return 1;
@@ -141,27 +161,34 @@ export const VideoList = () => {
   const UpdateDetail = async () => {
     try {
       setUpdateLoading(true)
-      await putVideoDetail({
+      setClosable(false)
+      const response = await putVideoDetail({
         videoId: editVideoData.id,
         content: editVideoData.content,
         title: editVideoData.title,
         tags: editVideoData.tags
       })
-      if (editVideoData.bgmName) {
+      if (response?.result === 'success' && editVideoData.bgmName) {
         await setVideoBgm({videoId: editVideoData.id, bgmFileName: editVideoData.bgmName})
       }
       setUpdateLoading(false)
+      setClosable(true)
       onClose()
+      if (response?.result === 'fail') {
+        openErrorNotification('영상 업로드에 실패하였습니다.', '잠시 후 다시 시도해 주십시오.')
+        return;
+      }
       openNotification('업데이트 완료되었습니다!', `${editVideoData.gptTitle} 영상이 업데이트 되었습니다`)
       await getVideoListData()
     } catch (e: any) {
-      errorHandle(e)
+      openErrorNotification('영상 업로드에 실패하였습니다.', '잠시 후 다시 시도해 주십시오.')
       setUpdateLoading(false)
       onClose()
     }
   }
 
   const onClose = () => {
+    if (!closable) return;
     setIsDrawerOpen(false)
   }
 
@@ -172,16 +199,8 @@ export const VideoList = () => {
   return (
     <>
       {contextHolder}
-      {isError && <Alert
-        className={'mb-5'}
-        message={errorMessage}
-        type={'error'}
-        afterClose={() => {
-          setIsError(false)
-          setErrorMessage('')
-        }}
-        closable
-      />}
+      <LoadDataError showIcon={true} type={'error'} isOpen={isError} message={errorMessage}
+                     afterClose={errorCloseHandle}/>
       {isLoading ? (<Skeleton/>) : <DefaultTable
         columns={columns}
         dataSource={dataSource}
@@ -205,6 +224,8 @@ export const VideoList = () => {
         open={isDrawerOpen}
         key={'right'}
         width={560}
+        mask={true}
+        maskClosable={false}
         afterOpenChange={(open: boolean) => {
           if (!open) {
             setEditVideoData({})
