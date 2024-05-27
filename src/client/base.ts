@@ -10,9 +10,8 @@ axiosApi.interceptors.response.use(
       return response;
     },
     error => {
-      console.log(error)
-      if (error.message === 'Network Error'){
-        // window.location.href = '/logout'
+      if (error.response.status === 401){
+        window.location.href = '/logout'
       }
       return Promise.reject(error);
     }
