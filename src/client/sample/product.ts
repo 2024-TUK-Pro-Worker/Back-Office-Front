@@ -1,7 +1,6 @@
 import { ISO8601DateTime } from "@/types/common";
 import qs from "qs";
 import useSWR from "swr";
-import { fetchApi } from "../base";
 
 export interface IProduct {
   id: number;
@@ -52,9 +51,9 @@ export const useProduct = (id: string | number) => {
 };
 
 export const createProduct = (value: IProductFormValue) => {
-  return fetchApi.post(`api/sample/products`, { body: JSON.stringify(value) });
+  return ''
 };
 
 export const updateProduct = (id: string, value: IProductFormValue) => {
-  return fetchApi.put(`api/sample/products/${id}`, { body: JSON.stringify(value) });
+  return ''
 };

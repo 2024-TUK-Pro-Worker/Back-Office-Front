@@ -1,7 +1,4 @@
-import {ISO8601DateTime} from "@/types/common";
-import qs from "qs";
-import useSWR from "swr";
-import {axiosApi, fetchApi} from "../base";
+import axiosApi from "@/client/base";
 export const getVideoList = async () => {
   try {
     const result = await axiosApi.get("api/video/list");

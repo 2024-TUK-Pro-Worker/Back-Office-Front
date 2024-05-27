@@ -1,20 +1,21 @@
-import ky from "ky-universal";
 import axios from "axios";
 
-export const fetcher = (input: URL | RequestInfo, init?: RequestInit | undefined) => {
-  return ky(`${process.env.NEXT_PUBLIC_API_ENDPOINT}/${input}`, init);
-}
-
-export const fetchApi = ky.create({
-  prefixUrl: process.env.NEXT_PUBLIC_API_ENDPOINT,
-  headers: {
-    "Content-Type": "application/json, text/plain, */*",
-    "Access-Control-Allow-Origin": "*"
-  },
-  credentials: "include"
-});
-
-export const axiosApi = axios.create({
+const axiosApi = axios.create({
   baseURL: process.env.NEXT_PUBLIC_API_ENDPOINT,
   withCredentials: true
 })
+
+axiosApi.interceptors.response.use(
+    response => {
+      return response;
+    },
+    error => {
+      console.log(error)
+      if (error.message === 'Network Error'){
+        // window.location.href = '/logout'
+      }
+      return Promise.reject(error);
+    }
+  );
+
+export default axiosApi;

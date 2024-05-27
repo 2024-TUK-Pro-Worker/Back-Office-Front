@@ -1,4 +1,4 @@
-import {axiosApi} from "../base";
+import axiosApi from "@/client/base";
 export const getScheduler = async () => {
   try {
     const result = await axiosApi.get("api/account/scheduler/schedule");

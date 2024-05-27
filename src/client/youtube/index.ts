@@ -1,4 +1,4 @@
-import {axiosApi} from "@/client/base";
+import axiosApi from "@/client/base";
 
 export const uploadYoutube = async (data: { videoId: number; }) => {
   try {
