@@ -56,7 +56,7 @@ const DefaultLayout = ({ Page, ...props }: IDefaultLayoutProps) => {
       key: 'updatable',
       message: '안내',
       description:
-        '해당 계정은 트라이얼 계정입니다. 서비스 이용에 제한적입니다.',
+        '해당 계정은 트라이얼 계정입니다. 일부 서비스 이용이 제한됩니다.',
       placement: 'topRight',
       closable: true,
       duration: null
